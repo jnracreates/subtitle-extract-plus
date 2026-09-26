@@ -55,13 +55,13 @@ public class ExtractSubtitlesTask : IScheduledTask
     }
 
     /// <inheritdoc />
-    public string Key => "ExtractSubtitles";
+    public string Key => "ExtractSubtitlesPlus";
 
     /// <inheritdoc />
-    public string Name => "Extract Subtitles";
+    public string Name => "Extract Subtitles Plus";
 
     /// <inheritdoc />
-    public string Description => "Extracts embedded subtitles proactively.";
+    public string Description => "Extracts embedded subtitles to the media folder using per-language and forced-track filters.";
 
     /// <inheritdoc />
     public string Category => _localization.GetLocalizedString("TasksLibraryCategory");

@@ -1,7 +1,7 @@
 name: "Subtitle Extract"
-guid: "CD893C24-B59E-4060-87B2-184070E1BF68"
+guid: "528acb30-72a8-4c27-b699-a27a80a3855c"
 imageUrl: "https://repo.jellyfin.org/releases/plugin/images/jellyfin-plugin-subtitleextract.png"
-version: 8
+version: 1
 targetAbi: "12.0.0.0"
 framework: "net10.0"
 owner: "jellyfin"

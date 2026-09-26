@@ -25,13 +25,13 @@ public class SubtitleExtractPlugin : BasePlugin<PluginConfiguration>, IHasWebPag
     }
 
     /// <inheritdoc />
-    public override string Name => "Subtitle Extract";
+    public override string Name => "Subtitle Extract Plus";
 
     /// <inheritdoc />
-    public override Guid Id => new("CD893C24-B59E-4060-87B2-184070E1BF68");
+    public override Guid Id => new("528acb30-72a8-4c27-b699-a27a80a3855c");
 
     /// <inheritdoc />
-    public override string Description => "Extracts embedded subtitles and attachments proactively outside of playing media. It allows optional subtitle extraction during library scans, or as a scheduled task";
+    public override string Description => "Fork of Subtitle Extract with per-language and forced/non-forced track selection, and the option to save extracted subtitles next to the media file using Jellyfin's external subtitle naming convention.";
 
     /// <summary>
     /// Gets the current plugin instance.
@@ -44,7 +44,7 @@ public class SubtitleExtractPlugin : BasePlugin<PluginConfiguration>, IHasWebPag
         return [
             new PluginPageInfo
             {
-                Name = "Jellyfin subtitle and attachment extractor",
+                Name = "Subtitle Extract Plus",
                 EmbeddedResourcePath = GetType().Namespace + ".Configuration.configPage.html"
             }
         ];
