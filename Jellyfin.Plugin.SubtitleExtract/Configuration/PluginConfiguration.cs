@@ -96,4 +96,10 @@ public class PluginConfiguration : BasePluginConfiguration
     /// Gets or sets a value indicating whether non-forced subtitles are extracted.
     /// </summary>
     public bool IncludeNonForcedSubtitles { get; set; } = true;
+
+    /// <summary>
+    /// Gets or sets a value indicating whether subtitles should be written next to the media file
+    /// instead of into Jellyfin's internal cache. When false, the legacy behaviour is used.
+    /// </summary>
+    public bool SaveWithMedia { get; set; } = true;
 }

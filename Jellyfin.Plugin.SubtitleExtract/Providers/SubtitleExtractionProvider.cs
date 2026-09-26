@@ -93,7 +93,14 @@ public class SubtitleExtractionProvider : ICustomMetadataProvider<Episode>,
                     continue;
                 }
 
-                await _encoder.ExtractAllExtractableSubtitles(mediaSource, cancellationToken).ConfigureAwait(false);
+                if (config.SaveWithMedia)
+                {
+                    await SubtitleExtractor.ExtractToMediaFolderAsync(item, mediaSource, config, _encoder, _logger, cancellationToken).ConfigureAwait(false);
+                }
+                else
+                {
+                    await _encoder.ExtractAllExtractableSubtitles(mediaSource, cancellationToken).ConfigureAwait(false);
+                }
             }
 
             _logger.LogDebug("Finished subtitle extraction for: {Video}", item.Path);

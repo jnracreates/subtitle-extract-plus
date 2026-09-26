@@ -14,6 +14,7 @@ using MediaBrowser.Model.Dto;
 using MediaBrowser.Model.Entities;
 using MediaBrowser.Model.Globalization;
 using MediaBrowser.Model.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace Jellyfin.Plugin.SubtitleExtract.Tasks;
 
@@ -27,6 +28,7 @@ public class ExtractSubtitlesTask : IScheduledTask
     private readonly ILibraryManager _libraryManager;
     private readonly ILocalizationManager _localization;
     private readonly ISubtitleEncoder _encoder;
+    private readonly ILogger<ExtractSubtitlesTask> _logger;
 
     private static readonly BaseItemKind[] _itemTypes = [BaseItemKind.Episode, BaseItemKind.Movie];
     private static readonly MediaType[] _mediaTypes = [MediaType.Video];
@@ -39,14 +41,17 @@ public class ExtractSubtitlesTask : IScheduledTask
     /// <param name="libraryManager">Instance of <see cref="ILibraryManager"/> interface.</param>
     /// <param name="subtitleEncoder"><see cref="ISubtitleEncoder"/> instance.</param>
     /// <param name="localization">Instance of <see cref="ILocalizationManager"/> interface.</param>
+    /// <param name="logger">Instance of <see cref="ILogger"/> interface.</param>
     public ExtractSubtitlesTask(
         ILibraryManager libraryManager,
         ISubtitleEncoder subtitleEncoder,
-        ILocalizationManager localization)
+        ILocalizationManager localization,
+        ILogger<ExtractSubtitlesTask> logger)
     {
         _libraryManager = libraryManager;
         _localization = localization;
         _encoder = subtitleEncoder;
+        _logger = logger;
     }
 
     /// <inheritdoc />
@@ -156,7 +161,14 @@ public class ExtractSubtitlesTask : IScheduledTask
 
                 foreach (var mediaSource in matchingSources)
                 {
-                    await _encoder.ExtractAllExtractableSubtitles(mediaSource, cancellationToken).ConfigureAwait(false);
+                    if (config.SaveWithMedia)
+                    {
+                        await SubtitleExtractor.ExtractToMediaFolderAsync(video, mediaSource, config, _encoder, _logger, cancellationToken).ConfigureAwait(false);
+                    }
+                    else
+                    {
+                        await _encoder.ExtractAllExtractableSubtitles(mediaSource, cancellationToken).ConfigureAwait(false);
+                    }
                 }
 
                 completedVideos++;

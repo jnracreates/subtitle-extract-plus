@@ -78,6 +78,14 @@
                     <div class="fieldDescription checkboxFieldDescription">Regular (full) subtitle tracks.</div>
                 </div>
 
+                <div class="checkboxContainer checkboxContainer-withDescription" style="margin-top: 1.5em;">
+                    <label>
+                        <input is="emby-checkbox" type="checkbox" id="chkSaveWithMedia"/>
+                        <span>Save subtitles next to media files</span>
+                    </label>
+                    <div class="fieldDescription checkboxFieldDescription">When enabled, subtitles are written as external files (<code>Movie.en.srt</code>, <code>Movie.en.forced.srt</code>) in the same folder as the video, using Jellyfin's naming convention. When disabled, subtitles are stored in Jellyfin's internal cache.</div>
+                </div>
+
                 <!-- Advanced Mode Toggle -->
                 <div class="checkboxContainer checkboxContainer-withDescription" style="margin-top: 1.5em;">
                     <label>
@@ -162,6 +170,7 @@
                     page.querySelector('#txtLanguages').value = (config.SelectedLanguages || []).join(', ');
                     page.querySelector('#chkForcedSubtitles').checked = config.IncludeForcedSubtitles !== false;
                     page.querySelector('#chkNonForcedSubtitles').checked = config.IncludeNonForcedSubtitles !== false;
+                    page.querySelector('#chkSaveWithMedia').checked = config.SaveWithMedia !== false;
 
                     generateCheckboxList(config.AllSubtitleCodecs, config.SelectedCodecs, "includedCodecsCheckboxes");
 
@@ -186,6 +195,7 @@
                     config.SelectedLanguages = form.querySelector('#txtLanguages').value.split(',').map(function (s) { return s.trim(); }).filter(function (s) { return s.length > 0; });
                     config.IncludeForcedSubtitles = form.querySelector('#chkForcedSubtitles').checked;
                     config.IncludeNonForcedSubtitles = form.querySelector('#chkNonForcedSubtitles').checked;
+                    config.SaveWithMedia = form.querySelector('#chkSaveWithMedia').checked;
                     config.SelectedSubtitlesLibraries = getChecked('librarySubtitlesCheckboxes');
                     config.SelectedAttachmentsLibraries = getChecked('libraryAttachmentsCheckboxes');
                     config.SelectedCodecs = getChecked('includedCodecsCheckboxes');
