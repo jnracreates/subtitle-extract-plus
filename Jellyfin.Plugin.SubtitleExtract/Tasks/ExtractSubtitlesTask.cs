@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Jellyfin.Data.Enums;
 using Jellyfin.Extensions;
+using Jellyfin.Plugin.SubtitleExtract.Helpers;
 using MediaBrowser.Controller.Dto;
 using MediaBrowser.Controller.Entities;
 using MediaBrowser.Controller.Library;
@@ -149,7 +150,11 @@ public class ExtractSubtitlesTask : IScheduledTask
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                foreach (var mediaSource in video.GetMediaSources(false).Where(source => FilterMediasWithCodec(isAdvancedCodecSelection, includeTextSubtitles, includeGraphicalSubtitles, selectedCodecs, source)))
+                var matchingSources = video.GetMediaSources(false)
+                    .Where(source => FilterMediasWithCodec(isAdvancedCodecSelection, includeTextSubtitles, includeGraphicalSubtitles, selectedCodecs, source))
+                    .Where(source => SubtitleTrackFilter.MatchesLanguageAndForcedFilter(source, config));
+
+                foreach (var mediaSource in matchingSources)
                 {
                     await _encoder.ExtractAllExtractableSubtitles(mediaSource, cancellationToken).ConfigureAwait(false);
                 }

@@ -1,5 +1,6 @@
 using System.Threading;
 using System.Threading.Tasks;
+using Jellyfin.Plugin.SubtitleExtract.Helpers;
 using MediaBrowser.Controller.Entities;
 using MediaBrowser.Controller.Entities.Movies;
 using MediaBrowser.Controller.Entities.TV;
@@ -87,6 +88,11 @@ public class SubtitleExtractionProvider : ICustomMetadataProvider<Episode>,
 
             foreach (var mediaSource in item.GetMediaSources(false))
             {
+                if (!SubtitleTrackFilter.MatchesLanguageAndForcedFilter(mediaSource, config))
+                {
+                    continue;
+                }
+
                 await _encoder.ExtractAllExtractableSubtitles(mediaSource, cancellationToken).ConfigureAwait(false);
             }
 

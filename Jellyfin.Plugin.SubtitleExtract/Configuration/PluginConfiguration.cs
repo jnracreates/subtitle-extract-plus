@@ -81,4 +81,19 @@ public class PluginConfiguration : BasePluginConfiguration
     /// Gets or sets a value indicating whether advanced codec selection mode is enabled.
     /// </summary>
     public bool IncludeGraphicalSubtitles { get; set; } = true;
+
+    /// <summary>
+    /// Gets or sets the ISO 639-1 language codes to extract. Empty means all languages.
+    /// </summary>
+    public string[] SelectedLanguages { get; set; } = [];
+
+    /// <summary>
+    /// Gets or sets a value indicating whether forced subtitles are extracted.
+    /// </summary>
+    public bool IncludeForcedSubtitles { get; set; } = true;
+
+    /// <summary>
+    /// Gets or sets a value indicating whether non-forced subtitles are extracted.
+    /// </summary>
+    public bool IncludeNonForcedSubtitles { get; set; } = true;
 }

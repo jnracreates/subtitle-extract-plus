@@ -54,6 +54,30 @@
                     </div>
                 </div>
 
+                <!-- Language & Forced Filtering -->
+                <h3 class="checkboxListLabel" style="margin-top: 1.5em;">Language &amp; Forced Filtering</h3>
+                <div class="inputContainer">
+                    <label class="inputLabel inputLabelUnfocused" for="txtLanguages">Languages to extract</label>
+                    <input id="txtLanguages" type="text" is="emby-input" />
+                    <div class="fieldDescription">Comma-separated ISO 639-1 codes, e.g. <code>en, fr, de</code>. Leave empty to accept every language.</div>
+                </div>
+
+                <div class="checkboxContainer checkboxContainer-withDescription">
+                    <label>
+                        <input is="emby-checkbox" type="checkbox" id="chkForcedSubtitles"/>
+                        <span>Include forced subtitles</span>
+                    </label>
+                    <div class="fieldDescription checkboxFieldDescription">Forced tracks (e.g. alien dialogue in an English film).</div>
+                </div>
+
+                <div class="checkboxContainer checkboxContainer-withDescription">
+                    <label>
+                        <input is="emby-checkbox" type="checkbox" id="chkNonForcedSubtitles"/>
+                        <span>Include non-forced subtitles</span>
+                    </label>
+                    <div class="fieldDescription checkboxFieldDescription">Regular (full) subtitle tracks.</div>
+                </div>
+
                 <!-- Advanced Mode Toggle -->
                 <div class="checkboxContainer checkboxContainer-withDescription" style="margin-top: 1.5em;">
                     <label>
@@ -135,6 +159,9 @@
                     page.querySelector('#chkTextSubtitles').checked = !!config.IncludeTextSubtitles;
                     page.querySelector('#chkGraphicalSubtitles').checked = !!config.IncludeGraphicalSubtitles;
                     page.querySelector('#chkAdvancedMode').checked = !!config.IsAdvancedMode;
+                    page.querySelector('#txtLanguages').value = (config.SelectedLanguages || []).join(', ');
+                    page.querySelector('#chkForcedSubtitles').checked = config.IncludeForcedSubtitles !== false;
+                    page.querySelector('#chkNonForcedSubtitles').checked = config.IncludeNonForcedSubtitles !== false;
 
                     generateCheckboxList(config.AllSubtitleCodecs, config.SelectedCodecs, "includedCodecsCheckboxes");
 
@@ -156,6 +183,9 @@
                     config.IncludeTextSubtitles = form.querySelector('#chkTextSubtitles').checked;
                     config.IncludeGraphicalSubtitles = form.querySelector('#chkGraphicalSubtitles').checked;
                     config.IsAdvancedMode = form.querySelector('#chkAdvancedMode').checked;
+                    config.SelectedLanguages = form.querySelector('#txtLanguages').value.split(',').map(function (s) { return s.trim(); }).filter(function (s) { return s.length > 0; });
+                    config.IncludeForcedSubtitles = form.querySelector('#chkForcedSubtitles').checked;
+                    config.IncludeNonForcedSubtitles = form.querySelector('#chkNonForcedSubtitles').checked;
                     config.SelectedSubtitlesLibraries = getChecked('librarySubtitlesCheckboxes');
                     config.SelectedAttachmentsLibraries = getChecked('libraryAttachmentsCheckboxes');
                     config.SelectedCodecs = getChecked('includedCodecsCheckboxes');
