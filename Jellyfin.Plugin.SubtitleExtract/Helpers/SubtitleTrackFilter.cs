@@ -1,10 +1,10 @@
 using System;
 using System.Linq;
-using Jellyfin.Plugin.SubtitleExtract.Configuration;
+using Jellyfin.Plugin.SubtitleExtractPlus.Configuration;
 using MediaBrowser.Model.Dto;
 using MediaBrowser.Model.Entities;
 
-namespace Jellyfin.Plugin.SubtitleExtract.Helpers;
+namespace Jellyfin.Plugin.SubtitleExtractPlus.Helpers;
 
 /// <summary>
 /// Helpers for filtering media sources by subtitle track properties.
@@ -24,8 +24,13 @@ public static class SubtitleTrackFilter
         {
             if (config.SelectedLanguages.Length > 0)
             {
-                if (string.IsNullOrEmpty(stream.Language) ||
-                    !config.SelectedLanguages.Contains(stream.Language, StringComparer.OrdinalIgnoreCase))
+                if (string.IsNullOrEmpty(stream.Language))
+                {
+                    continue;
+                }
+
+                var streamLang = SubtitleExtractor.NormalizeToIso1(stream.Language);
+                if (!config.SelectedLanguages.Any(c => string.Equals(SubtitleExtractor.NormalizeToIso1(c), streamLang, StringComparison.OrdinalIgnoreCase)))
                 {
                     continue;
                 }

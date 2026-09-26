@@ -4,14 +4,14 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Jellyfin.Plugin.SubtitleExtract.Configuration;
+using Jellyfin.Plugin.SubtitleExtractPlus.Configuration;
 using MediaBrowser.Controller.Entities;
 using MediaBrowser.Controller.MediaEncoding;
 using MediaBrowser.Model.Dto;
 using MediaBrowser.Model.Entities;
 using Microsoft.Extensions.Logging;
 
-namespace Jellyfin.Plugin.SubtitleExtract.Helpers;
+namespace Jellyfin.Plugin.SubtitleExtractPlus.Helpers;
 
 /// <summary>
 /// Extracts individual subtitle tracks and writes them next to the media file using
@@ -20,6 +20,38 @@ namespace Jellyfin.Plugin.SubtitleExtract.Helpers;
 public static class SubtitleExtractor
 {
     private const string OutputFormat = "srt";
+
+    private static readonly System.Collections.Generic.Dictionary<string, string> Iso1Map =
+        new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["eng"] = "en", ["fra"] = "fr", ["fre"] = "fr", ["deu"] = "de", ["ger"] = "de",
+            ["spa"] = "es", ["ita"] = "it", ["por"] = "pt", ["jpn"] = "ja", ["kor"] = "ko",
+            ["chi"] = "zh", ["zho"] = "zh", ["rus"] = "ru", ["ara"] = "ar", ["hin"] = "hi",
+            ["nld"] = "nl", ["dut"] = "nl", ["swe"] = "sv", ["nor"] = "no", ["dan"] = "da",
+            ["fin"] = "fi", ["pol"] = "pl", ["tur"] = "tr", ["heb"] = "he", ["tha"] = "th",
+            ["vie"] = "vi", ["ukr"] = "uk", ["ell"] = "el", ["gre"] = "el", ["ces"] = "cs",
+            ["cze"] = "cs", ["hun"] = "hu", ["ron"] = "ro", ["rum"] = "ro", ["ind"] = "id",
+            ["msa"] = "ms", ["may"] = "ms", ["fil"] = "tl", ["tgl"] = "tl", ["slk"] = "sk",
+            ["slo"] = "sk", ["slv"] = "sl", ["hrv"] = "hr", ["srp"] = "sr", ["bul"] = "bg",
+            ["lit"] = "lt", ["lav"] = "lv", ["est"] = "et", ["cat"] = "ca", ["glg"] = "gl",
+            ["eus"] = "eu", ["baq"] = "eu", ["gle"] = "ga", ["cym"] = "cy", ["wel"] = "cy",
+            ["isl"] = "is", ["ice"] = "is",
+        };
+
+    /// <summary>
+    /// Normalizes an ISO 639-2/B code to its ISO 639-1 equivalent if known.
+    /// </summary>
+    /// <param name="code">The language code to normalize.</param>
+    /// <returns>The normalized 2-letter code, or the input unchanged.</returns>
+    internal static string NormalizeToIso1(string code)
+    {
+        if (string.IsNullOrEmpty(code))
+        {
+            return code;
+        }
+
+        return Iso1Map.TryGetValue(code, out var iso1) ? iso1 : code;
+    }
 
     /// <summary>
     /// Extracts every matching subtitle stream from a media source to the media folder.
@@ -82,7 +114,7 @@ public static class SubtitleExtractor
                 continue;
             }
 
-            var fileName = BuildFileName(mediaFileName, stream.Language, stream.IsForced, stream.IsDefault, OutputFormat);
+            var fileName = BuildFileName(mediaFileName, NormalizeToIso1(stream.Language), stream.IsForced, stream.IsDefault, OutputFormat);
             var outputPath = Path.Combine(mediaDir, fileName);
 
             if (File.Exists(outputPath))
@@ -151,8 +183,13 @@ public static class SubtitleExtractor
     {
         if (config.SelectedLanguages.Length > 0)
         {
-            if (string.IsNullOrEmpty(stream.Language) ||
-                !config.SelectedLanguages.Contains(stream.Language, StringComparer.OrdinalIgnoreCase))
+            if (string.IsNullOrEmpty(stream.Language))
+            {
+                return false;
+            }
+
+            var streamLang = NormalizeToIso1(stream.Language);
+            if (!config.SelectedLanguages.Any(c => string.Equals(NormalizeToIso1(c), streamLang, StringComparison.OrdinalIgnoreCase)))
             {
                 return false;
             }

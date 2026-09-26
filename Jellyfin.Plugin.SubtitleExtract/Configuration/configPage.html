@@ -62,6 +62,12 @@
                     <div class="fieldDescription">Comma-separated ISO 639-1 codes, e.g. <code>en, fr, de</code>. Leave empty to accept every language.</div>
                 </div>
 
+                <div class="inputContainer">
+                    <label class="inputLabel inputLabelUnfocused" for="txtPathFilter">Path filter (optional)</label>
+                    <input id="txtPathFilter" type="text" is="emby-input" />
+                    <div class="fieldDescription">Only process items whose path starts with this string. Leave empty to process everything. Useful for testing on a single movie or season. Example: <code>/media/Movies/99 Homes (2015)</code></div>
+                </div>
+
                 <div class="checkboxContainer checkboxContainer-withDescription">
                     <label>
                         <input is="emby-checkbox" type="checkbox" id="chkForcedSubtitles"/>
@@ -168,6 +174,7 @@
                     page.querySelector('#chkGraphicalSubtitles').checked = !!config.IncludeGraphicalSubtitles;
                     page.querySelector('#chkAdvancedMode').checked = !!config.IsAdvancedMode;
                     page.querySelector('#txtLanguages').value = (config.SelectedLanguages || []).join(', ');
+                    page.querySelector('#txtPathFilter').value = config.PathFilter || '';
                     page.querySelector('#chkForcedSubtitles').checked = config.IncludeForcedSubtitles !== false;
                     page.querySelector('#chkNonForcedSubtitles').checked = config.IncludeNonForcedSubtitles !== false;
                     page.querySelector('#chkSaveWithMedia').checked = config.SaveWithMedia !== false;
@@ -193,6 +200,7 @@
                     config.IncludeGraphicalSubtitles = form.querySelector('#chkGraphicalSubtitles').checked;
                     config.IsAdvancedMode = form.querySelector('#chkAdvancedMode').checked;
                     config.SelectedLanguages = form.querySelector('#txtLanguages').value.split(',').map(function (s) { return s.trim(); }).filter(function (s) { return s.length > 0; });
+                    config.PathFilter = form.querySelector('#txtPathFilter').value.trim();
                     config.IncludeForcedSubtitles = form.querySelector('#chkForcedSubtitles').checked;
                     config.IncludeNonForcedSubtitles = form.querySelector('#chkNonForcedSubtitles').checked;
                     config.SaveWithMedia = form.querySelector('#chkSaveWithMedia').checked;

@@ -3,7 +3,7 @@
 using System.Linq;
 using MediaBrowser.Model.Plugins;
 
-namespace Jellyfin.Plugin.SubtitleExtract.Configuration;
+namespace Jellyfin.Plugin.SubtitleExtractPlus.Configuration;
 
 /// <summary>
 /// Plugin configuration.
@@ -86,6 +86,19 @@ public class PluginConfiguration : BasePluginConfiguration
     /// Gets or sets the ISO 639-1 language codes to extract. Empty means all languages.
     /// </summary>
     public string[] SelectedLanguages { get; set; } = [];
+
+    /// <summary>
+    /// Gets or sets an optional path prefix. When set, only items under this
+    /// path are processed. Empty = process everything. Useful for testing on
+    /// a single movie or season without walking the whole library.
+    /// </summary>
+    public string PathFilter { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets an optional path prefix. When set, only items under this
+    /// path are processed. Empty = process everything. Useful for testing on
+    /// a single movie or season without walking the whole library.
+    /// </summary>
 
     /// <summary>
     /// Gets or sets a value indicating whether forced subtitles are extracted.

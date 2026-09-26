@@ -1,6 +1,6 @@
 using System.Threading;
 using System.Threading.Tasks;
-using Jellyfin.Plugin.SubtitleExtract.Helpers;
+using Jellyfin.Plugin.SubtitleExtractPlus.Helpers;
 using MediaBrowser.Controller.Entities;
 using MediaBrowser.Controller.Entities.Movies;
 using MediaBrowser.Controller.Entities.TV;
@@ -9,7 +9,7 @@ using MediaBrowser.Controller.MediaEncoding;
 using MediaBrowser.Controller.Providers;
 using Microsoft.Extensions.Logging;
 
-namespace Jellyfin.Plugin.SubtitleExtract.Providers;
+namespace Jellyfin.Plugin.SubtitleExtractPlus.Providers;
 
 /// <summary>
 /// Extracts embedded subtitles while library scanning for immediate access in web player.

@@ -1,4 +1,4 @@
-﻿namespace Jellyfin.Plugin.SubtitleExtract.Configuration;
+﻿namespace Jellyfin.Plugin.SubtitleExtractPlus.Configuration;
 
 /// <summary>
 /// Container for the checkbox model.

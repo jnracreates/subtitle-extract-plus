@@ -3,7 +3,11 @@
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <AssemblyName>SubtitleExtractPlus</AssemblyName>
+    <RootNamespace>Jellyfin.Plugin.SubtitleExtractPlus</RootNamespace>
     <Version>1.0.0.0</Version>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+    <InformationalVersion>1.0.0.0</InformationalVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <Nullable>enable</Nullable>
@@ -22,6 +26,13 @@
 
   <ItemGroup>
     <EmbeddedResource Include="Configuration\configPage.html" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
+      <_Parameter1>TargetAbi</_Parameter1>
+      <_Parameter2>12.0.0.0</_Parameter2>
+    </AssemblyAttribute>
   </ItemGroup>
 
 </Project>

@@ -514,3 +514,4 @@ dotnet_diagnostic.IDISP007.severity = suggestion
 
 # disable warning IDISP008: Don't assign member with injected and created disposables
 dotnet_diagnostic.IDISP008.severity = suggestion
+dotnet_diagnostic.SA1623.severity = none

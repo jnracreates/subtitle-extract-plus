@@ -11,7 +11,7 @@ using MediaBrowser.Controller.Providers;
 using MediaBrowser.Model.Entities;
 using Microsoft.Extensions.Logging;
 
-namespace Jellyfin.Plugin.SubtitleExtract.Providers;
+namespace Jellyfin.Plugin.SubtitleExtractPlus.Providers;
 
 /// <summary>
 /// Extracts embedded attachments while library scanning for immediate access in web player.

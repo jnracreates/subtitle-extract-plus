@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
-using Jellyfin.Plugin.SubtitleExtract.Configuration;
+using Jellyfin.Plugin.SubtitleExtractPlus.Configuration;
 using MediaBrowser.Common.Configuration;
 using MediaBrowser.Common.Plugins;
 using MediaBrowser.Model.Plugins;
 using MediaBrowser.Model.Serialization;
 
-namespace Jellyfin.Plugin.SubtitleExtract;
+namespace Jellyfin.Plugin.SubtitleExtractPlus;
 
 /// <summary>
 /// Plugin entrypoint.

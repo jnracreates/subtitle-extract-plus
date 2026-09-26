@@ -13,7 +13,7 @@ using MediaBrowser.Model.Entities;
 using MediaBrowser.Model.Globalization;
 using MediaBrowser.Model.Tasks;
 
-namespace Jellyfin.Plugin.SubtitleExtract.Tasks;
+namespace Jellyfin.Plugin.SubtitleExtractPlus.Tasks;
 
 /// <summary>
 /// Scheduled task to extract embedded attachments for immediate access in web player.

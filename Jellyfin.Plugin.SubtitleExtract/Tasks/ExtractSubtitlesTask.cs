@@ -5,7 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Jellyfin.Data.Enums;
 using Jellyfin.Extensions;
-using Jellyfin.Plugin.SubtitleExtract.Helpers;
+using Jellyfin.Plugin.SubtitleExtractPlus.Helpers;
 using MediaBrowser.Controller.Dto;
 using MediaBrowser.Controller.Entities;
 using MediaBrowser.Controller.Library;
@@ -16,7 +16,7 @@ using MediaBrowser.Model.Globalization;
 using MediaBrowser.Model.Tasks;
 using Microsoft.Extensions.Logging;
 
-namespace Jellyfin.Plugin.SubtitleExtract.Tasks;
+namespace Jellyfin.Plugin.SubtitleExtractPlus.Tasks;
 
 /// <summary>
 /// Scheduled task to extract embedded subtitles for immediate access in web player.
@@ -128,6 +128,9 @@ public class ExtractSubtitlesTask : IScheduledTask
             Limit = QueryPageLimit
         };
 
+        // Path filter for testing on a small subset. Empty = no filter.
+        var pathFilter = SubtitleExtractPlugin.Current.Configuration.PathFilter;
+
         var config = SubtitleExtractPlugin.Current.Configuration;
         // Values are stored separated by comma, and we only need the part before the dash as it is the codec's name.
         string[] selectedCodecs = config.SelectedCodecs;
@@ -154,6 +157,13 @@ public class ExtractSubtitlesTask : IScheduledTask
             foreach (var video in videos)
             {
                 cancellationToken.ThrowIfCancellationRequested();
+
+                // Path filter for testing on a small subset. Empty = no filter.
+                if (!string.IsNullOrEmpty(pathFilter) &&
+                    !(video.Path ?? string.Empty).StartsWith(pathFilter, StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
 
                 var matchingSources = video.GetMediaSources(false)
                     .Where(source => FilterMediasWithCodec(isAdvancedCodecSelection, includeTextSubtitles, includeGraphicalSubtitles, selectedCodecs, source))
