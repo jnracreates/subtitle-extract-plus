@@ -25,17 +25,22 @@ public class SubtitleExtractionProvider : ICustomMetadataProvider<Episode>,
 
     private readonly ISubtitleEncoder _encoder;
 
+    private readonly IMediaEncoder _mediaEncoder;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="SubtitleExtractionProvider"/> class.
     /// </summary>
     /// <param name="subtitleEncoder"><see cref="ISubtitleEncoder"/> instance.</param>
+    /// <param name="mediaEncoder"><see cref="IMediaEncoder"/> instance for the ffmpeg path.</param>
     /// <param name="logger">Instance of the <see cref="ILogger"/> interface.</param>
     public SubtitleExtractionProvider(
         ISubtitleEncoder subtitleEncoder,
+        IMediaEncoder mediaEncoder,
         ILogger<SubtitleExtractionProvider> logger)
     {
         _logger = logger;
         _encoder = subtitleEncoder;
+        _mediaEncoder = mediaEncoder;
     }
 
     /// <inheritdoc />
@@ -95,7 +100,7 @@ public class SubtitleExtractionProvider : ICustomMetadataProvider<Episode>,
 
                 if (config.SaveWithMedia)
                 {
-                    await SubtitleExtractor.ExtractToMediaFolderAsync(item, mediaSource, config, _encoder, _logger, cancellationToken).ConfigureAwait(false);
+                    await SubtitleExtractor.ExtractToMediaFolderAsync(item, mediaSource, config, _mediaEncoder, _logger, cancellationToken).ConfigureAwait(false);
                 }
                 else
                 {

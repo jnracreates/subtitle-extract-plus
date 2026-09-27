@@ -28,6 +28,7 @@ public class ExtractSubtitlesTask : IScheduledTask
     private readonly ILibraryManager _libraryManager;
     private readonly ILocalizationManager _localization;
     private readonly ISubtitleEncoder _encoder;
+    private readonly IMediaEncoder _mediaEncoder;
     private readonly ILogger<ExtractSubtitlesTask> _logger;
 
     private static readonly BaseItemKind[] _itemTypes = [BaseItemKind.Episode, BaseItemKind.Movie];
@@ -40,17 +41,20 @@ public class ExtractSubtitlesTask : IScheduledTask
     /// </summary>
     /// <param name="libraryManager">Instance of <see cref="ILibraryManager"/> interface.</param>
     /// <param name="subtitleEncoder"><see cref="ISubtitleEncoder"/> instance.</param>
+    /// <param name="mediaEncoder"><see cref="IMediaEncoder"/> instance for ffmpeg path.</param>
     /// <param name="localization">Instance of <see cref="ILocalizationManager"/> interface.</param>
     /// <param name="logger">Instance of <see cref="ILogger"/> interface.</param>
     public ExtractSubtitlesTask(
         ILibraryManager libraryManager,
         ISubtitleEncoder subtitleEncoder,
+        IMediaEncoder mediaEncoder,
         ILocalizationManager localization,
         ILogger<ExtractSubtitlesTask> logger)
     {
         _libraryManager = libraryManager;
         _localization = localization;
         _encoder = subtitleEncoder;
+        _mediaEncoder = mediaEncoder;
         _logger = logger;
     }
 
@@ -173,7 +177,7 @@ public class ExtractSubtitlesTask : IScheduledTask
                 {
                     if (config.SaveWithMedia)
                     {
-                        await SubtitleExtractor.ExtractToMediaFolderAsync(video, mediaSource, config, _encoder, _logger, cancellationToken).ConfigureAwait(false);
+                        await SubtitleExtractor.ExtractToMediaFolderAsync(video, mediaSource, config, _mediaEncoder, _logger, cancellationToken).ConfigureAwait(false);
                     }
                     else
                     {

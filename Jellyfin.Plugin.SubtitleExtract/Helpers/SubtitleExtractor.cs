@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -15,28 +17,73 @@ namespace Jellyfin.Plugin.SubtitleExtractPlus.Helpers;
 
 /// <summary>
 /// Extracts individual subtitle tracks and writes them next to the media file using
-/// Jellyfin's external subtitle naming convention.
+/// Jellyfin's external subtitle naming convention. Calls ffmpeg directly per stream
+/// so that empty tracks cannot cascade failures into other streams.
 /// </summary>
 public static class SubtitleExtractor
 {
     private const string OutputFormat = "srt";
 
-    private static readonly System.Collections.Generic.Dictionary<string, string> Iso1Map =
-        new(StringComparer.OrdinalIgnoreCase)
-        {
-            ["eng"] = "en", ["fra"] = "fr", ["fre"] = "fr", ["deu"] = "de", ["ger"] = "de",
-            ["spa"] = "es", ["ita"] = "it", ["por"] = "pt", ["jpn"] = "ja", ["kor"] = "ko",
-            ["chi"] = "zh", ["zho"] = "zh", ["rus"] = "ru", ["ara"] = "ar", ["hin"] = "hi",
-            ["nld"] = "nl", ["dut"] = "nl", ["swe"] = "sv", ["nor"] = "no", ["dan"] = "da",
-            ["fin"] = "fi", ["pol"] = "pl", ["tur"] = "tr", ["heb"] = "he", ["tha"] = "th",
-            ["vie"] = "vi", ["ukr"] = "uk", ["ell"] = "el", ["gre"] = "el", ["ces"] = "cs",
-            ["cze"] = "cs", ["hun"] = "hu", ["ron"] = "ro", ["rum"] = "ro", ["ind"] = "id",
-            ["msa"] = "ms", ["may"] = "ms", ["fil"] = "tl", ["tgl"] = "tl", ["slk"] = "sk",
-            ["slo"] = "sk", ["slv"] = "sl", ["hrv"] = "hr", ["srp"] = "sr", ["bul"] = "bg",
-            ["lit"] = "lt", ["lav"] = "lv", ["est"] = "et", ["cat"] = "ca", ["glg"] = "gl",
-            ["eus"] = "eu", ["baq"] = "eu", ["gle"] = "ga", ["cym"] = "cy", ["wel"] = "cy",
-            ["isl"] = "is", ["ice"] = "is",
-        };
+    private static readonly Dictionary<string, string> Iso1Map = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ["eng"] = "en",
+        ["fra"] = "fr",
+        ["fre"] = "fr",
+        ["deu"] = "de",
+        ["ger"] = "de",
+        ["spa"] = "es",
+        ["ita"] = "it",
+        ["por"] = "pt",
+        ["jpn"] = "ja",
+        ["kor"] = "ko",
+        ["chi"] = "zh",
+        ["zho"] = "zh",
+        ["rus"] = "ru",
+        ["ara"] = "ar",
+        ["hin"] = "hi",
+        ["nld"] = "nl",
+        ["dut"] = "nl",
+        ["swe"] = "sv",
+        ["nor"] = "no",
+        ["dan"] = "da",
+        ["fin"] = "fi",
+        ["pol"] = "pl",
+        ["tur"] = "tr",
+        ["heb"] = "he",
+        ["tha"] = "th",
+        ["vie"] = "vi",
+        ["ukr"] = "uk",
+        ["ell"] = "el",
+        ["gre"] = "el",
+        ["ces"] = "cs",
+        ["cze"] = "cs",
+        ["hun"] = "hu",
+        ["ron"] = "ro",
+        ["rum"] = "ro",
+        ["ind"] = "id",
+        ["msa"] = "ms",
+        ["may"] = "ms",
+        ["fil"] = "tl",
+        ["tgl"] = "tl",
+        ["slk"] = "sk",
+        ["slo"] = "sk",
+        ["slv"] = "sl",
+        ["hrv"] = "hr",
+        ["srp"] = "sr",
+        ["bul"] = "bg",
+        ["lit"] = "lt",
+        ["lav"] = "lv",
+        ["est"] = "et",
+        ["cat"] = "ca",
+        ["glg"] = "gl",
+        ["eus"] = "eu",
+        ["baq"] = "eu",
+        ["gle"] = "ga",
+        ["cym"] = "cy",
+        ["wel"] = "cy",
+        ["isl"] = "is",
+        ["ice"] = "is",
+    };
 
     /// <summary>
     /// Normalizes an ISO 639-2/B code to its ISO 639-1 equivalent if known.
@@ -55,39 +102,40 @@ public static class SubtitleExtractor
 
     /// <summary>
     /// Extracts every matching subtitle stream from a media source to the media folder.
+    /// Each stream is extracted with its own ffmpeg call, so an empty or unreadable
+    /// track cannot cause failures in other tracks.
     /// </summary>
-    /// <param name="item">The item the media source belongs to.</param>
+    /// <param name="item">The media item.</param>
     /// <param name="mediaSource">The media source.</param>
     /// <param name="config">The plugin configuration.</param>
-    /// <param name="encoder">The subtitle encoder.</param>
+    /// <param name="mediaEncoder">The media encoder, used for the ffmpeg path.</param>
     /// <param name="logger">The logger.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A task representing the operation.</returns>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     public static async Task ExtractToMediaFolderAsync(
         BaseItem item,
         MediaSourceInfo mediaSource,
         PluginConfiguration config,
-        ISubtitleEncoder encoder,
+        IMediaEncoder mediaEncoder,
         ILogger logger,
         CancellationToken cancellationToken)
     {
-        var mediaPath = mediaSource.Path ?? item.Path;
-        if (string.IsNullOrEmpty(mediaPath))
+        var mediaPath = item.Path;
+        if (string.IsNullOrEmpty(mediaPath) || !File.Exists(mediaPath))
         {
+            logger.LogWarning("Media file does not exist: {Path}", mediaPath);
             return;
         }
 
-        var mediaDir = Path.GetDirectoryName(mediaPath);
-        if (string.IsNullOrEmpty(mediaDir))
+        var mediaDirectory = Path.GetDirectoryName(mediaPath);
+        if (string.IsNullOrEmpty(mediaDirectory))
         {
+            logger.LogWarning("Cannot determine directory for {Path}", mediaPath);
             return;
         }
 
         var mediaFileName = Path.GetFileNameWithoutExtension(mediaPath);
-        if (string.IsNullOrEmpty(mediaFileName))
-        {
-            return;
-        }
+        var ffmpegPath = mediaEncoder.EncoderPath;
 
         foreach (var stream in mediaSource.MediaStreams.Where(s => s.Type == MediaStreamType.Subtitle))
         {
@@ -99,71 +147,135 @@ public static class SubtitleExtractor
             if (!stream.IsTextSubtitleStream)
             {
                 logger.LogDebug(
-                    "Skipping graphical subtitle stream {Index} in {Path} (OCR not supported)",
-                    stream.Index,
-                    mediaPath);
+                    "Skipping non-text subtitle stream {Index} ({Codec}) in {Path} — SRT conversion not possible without OCR",
+                                stream.Index,
+                                stream.Codec,
+                                mediaPath);
                 continue;
             }
 
-            if (string.IsNullOrEmpty(stream.Language))
-            {
-                logger.LogDebug(
-                    "Skipping stream {Index} in {Path}: no language code, cannot build a Jellyfin-compliant filename",
-                    stream.Index,
-                    mediaPath);
-                continue;
-            }
-
-            var fileName = BuildFileName(mediaFileName, NormalizeToIso1(stream.Language), stream.IsForced, stream.IsDefault, OutputFormat);
-            var outputPath = Path.Combine(mediaDir, fileName);
+            var lang = NormalizeToIso1(stream.Language);
+            var fileName = BuildFileName(mediaFileName, lang, stream.IsForced, stream.IsDefault, OutputFormat);
+            var outputPath = Path.Combine(mediaDirectory, fileName);
 
             if (File.Exists(outputPath))
             {
-                logger.LogDebug("Subtitle already exists, skipping: {Path}", outputPath);
+                logger.LogDebug("Subtitle already exists: {Path}", outputPath);
                 continue;
             }
 
             try
             {
-                using var subtitleStream = await encoder.GetSubtitles(
-                    item,
-                    mediaSource.Id,
+                await ExtractSingleStreamAsync(ffmpegPath, mediaPath, stream.Index, outputPath, logger, cancellationToken).ConfigureAwait(false);
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                logger.LogWarning(
+                    ex,
+                    "Failed to extract subtitle stream {Index} from {Path}",
                     stream.Index,
-                    OutputFormat,
-                    0,
-                    0,
-                    false,
-                    cancellationToken).ConfigureAwait(false);
-
-                using var fileStream = File.Create(outputPath);
-                await subtitleStream.CopyToAsync(fileStream, cancellationToken).ConfigureAwait(false);
-
-                logger.LogInformation("Extracted subtitle: {Path}", outputPath);
-            }
-            catch (IOException ex)
-            {
-                logger.LogWarning(ex, "Failed to write subtitle file: {Path}", outputPath);
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                logger.LogWarning(ex, "No write permission for subtitle file: {Path}", outputPath);
+                    mediaPath);
             }
         }
     }
 
-    /// <summary>
-    /// Builds a filename following Jellyfin's external subtitle convention:
-    /// {mediaName}.{language}[.default][.forced].{ext}.
-    /// </summary>
-    /// <param name="mediaName">The media file's name without extension.</param>
-    /// <param name="language">The ISO language code.</param>
-    /// <param name="isForced">Whether the track is forced.</param>
-    /// <param name="isDefault">Whether the track is default.</param>
-    /// <param name="extension">The file extension without dot.</param>
-    /// <returns>The constructed filename.</returns>
-    private static string BuildFileName(string mediaName, string language, bool isForced, bool isDefault, string extension)
+    private static async Task ExtractSingleStreamAsync(
+        string ffmpegPath,
+        string inputPath,
+        int streamIndex,
+        string outputPath,
+        ILogger logger,
+        CancellationToken cancellationToken)
     {
-        var parts = new List<string> { mediaName, language };
+        var tempOutput = Path.Combine(
+            Path.GetTempPath(),
+                                      string.Format(CultureInfo.InvariantCulture, "subextract-{0:N}.srt", Guid.NewGuid()));
+
+        try
+        {
+            var args = string.Format(
+                CultureInfo.InvariantCulture,
+                "-nostdin -hide_banner -y -i \"{0}\" -map 0:{1} -an -vn -c:s srt -flush_packets 1 \"{2}\"",
+                inputPath,
+                streamIndex,
+                tempOutput);
+
+            var startInfo = new ProcessStartInfo
+            {
+                FileName = ffmpegPath,
+                Arguments = args,
+                RedirectStandardError = true,
+                RedirectStandardOutput = true,
+                UseShellExecute = false,
+                CreateNoWindow = true,
+            };
+
+            using var process = new Process { StartInfo = startInfo };
+            process.Start();
+
+            var stderrTask = process.StandardError.ReadToEndAsync(cancellationToken);
+
+            await process.WaitForExitAsync(cancellationToken).ConfigureAwait(false);
+
+            var stderr = await stderrTask.ConfigureAwait(false);
+
+            if (!File.Exists(tempOutput))
+            {
+                logger.LogDebug(
+                    "ffmpeg produced no output for stream {Index} in {Path} (likely empty track). Exit code {Code}. Stderr tail: {Stderr}",
+                                streamIndex,
+                                inputPath,
+                                process.ExitCode,
+                                Truncate(stderr, 300));
+                return;
+            }
+
+            var info = new FileInfo(tempOutput);
+            if (info.Length == 0)
+            {
+                logger.LogDebug(
+                    "Subtitle stream {Index} in {Path} produced an empty file — skipping",
+                    streamIndex,
+                    inputPath);
+                return;
+            }
+
+            File.Copy(tempOutput, outputPath, overwrite: true);
+            logger.LogInformation("Extracted subtitle: {Path}", outputPath);
+        }
+        finally
+        {
+            try
+            {
+                if (File.Exists(tempOutput))
+                {
+                    File.Delete(tempOutput);
+                }
+            }
+            catch
+            {
+                // best-effort cleanup
+            }
+        }
+    }
+
+    private static string BuildFileName(
+        string mediaFileName,
+        string lang,
+        bool isForced,
+        bool isDefault,
+        string outputFormat)
+    {
+        var parts = new List<string> { mediaFileName };
+
+        if (!string.IsNullOrEmpty(lang))
+        {
+            parts.Add(lang);
+        }
 
         if (isDefault)
         {
@@ -175,12 +287,16 @@ public static class SubtitleExtractor
             parts.Add("forced");
         }
 
-        parts.Add(extension);
-        return string.Join(".", parts);
+        return string.Join('.', parts) + "." + outputFormat;
     }
 
     private static bool ShouldExtract(MediaStream stream, PluginConfiguration config)
     {
+        if (stream.Type != MediaStreamType.Subtitle)
+        {
+            return false;
+        }
+
         if (config.SelectedLanguages.Length > 0)
         {
             if (string.IsNullOrEmpty(stream.Language))
@@ -189,7 +305,17 @@ public static class SubtitleExtractor
             }
 
             var streamLang = NormalizeToIso1(stream.Language);
-            if (!config.SelectedLanguages.Any(c => string.Equals(NormalizeToIso1(c), streamLang, StringComparison.OrdinalIgnoreCase)))
+            var matchFound = false;
+            foreach (var candidate in config.SelectedLanguages)
+            {
+                if (string.Equals(NormalizeToIso1(candidate), streamLang, StringComparison.OrdinalIgnoreCase))
+                {
+                    matchFound = true;
+                    break;
+                }
+            }
+
+            if (!matchFound)
             {
                 return false;
             }
@@ -206,5 +332,15 @@ public static class SubtitleExtractor
         }
 
         return true;
+    }
+
+    private static string Truncate(string value, int maxLength)
+    {
+        if (string.IsNullOrEmpty(value) || value.Length <= maxLength)
+        {
+            return value;
+        }
+
+        return string.Concat(value.AsSpan(0, maxLength), "…");
     }
 }
