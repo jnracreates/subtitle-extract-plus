@@ -41,6 +41,10 @@ After installing, go to **Dashboard → Plugins → Subtitle Extract Plus → Se
 | **Save subtitles next to media files** | When enabled, writes `.en.srt` next to the video. When disabled, uses Jellyfin's internal cache. |
 | **Path filter** | Limit extraction to items whose path starts with this string. Empty = process everything. Useful for testing on one movie. |
 
+<img width="826" height="1154" alt="subexpls1" src="https://github.com/user-attachments/assets/a8d744cb-2584-4e84-8880-330c2c81e946" />
+<img width="829" height="1124" alt="subexpls2" src="https://github.com/user-attachments/assets/9f7c7348-83b0-4aa2-8660-37e257ae8887" />
+
+
 Then run **Dashboard → Scheduled Tasks → Extract Subtitles Plus → Run**, or set up a daily schedule trigger.
 
 ## Re-extracting
