@@ -11,7 +11,7 @@
                 "version": "2.0.0.0",
                 "changelog": "- Initial release: language filtering, forced/non-forced selection, ISO 639-1 output",
                 "targetAbi": "12.0.0.0",
-                "sourceUrl": "/subtitle-extract-plus/subtitle-extract-plus_2.0.0.0.zip",
+                "sourceUrl": "https://github.com/jnracreates/subtitle-extract-plus/releases/download/v2.0.0.0/subtitle-extract-plus_2.0.0.0.zip",
                 "checksum": "9612c42b4601d432093514ff9dbdedab",
                 "timestamp": "2026-09-27T17:37:03Z"
             }
