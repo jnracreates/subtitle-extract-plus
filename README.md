@@ -1,4 +1,5 @@
-<img width="1376" height="768" alt="subtitleextractplus" src="https://github.com/user-attachments/assets/363323b8-7df1-4f0b-8d85-c2c8450844f1" />
+<img width="1246" height="238" alt="subtitleextractpluslogo" src="https://github.com/user-attachments/assets/7a9f004b-e093-4fad-ade4-35fa58686970" />
+
 
 # SubtitleExtractPlus
 
