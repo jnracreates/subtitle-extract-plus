@@ -1,50 +1,40 @@
-<h1 align="center">Subtitle Extract for Jellyfin Plugin</h1>
-<h3 align="center">Part of the <a href="https://jellyfin.org">Jellyfin Project</a></h3>
 
-<p align="center">
-<img alt="Plugin Banner" src="https://raw.githubusercontent.com/jellyfin/jellyfin-ux/master/plugins/SVG/jellyfin-plugin-subtitleextract.svg?sanitize=true"/>
-<br/>
-<br/>
-<a href="https://github.com/jellyfin/jellyfin-plugin-subtitleextract/actions?query=workflow%3A%22Test+Build+Plugin%22">
-<img alt="GitHub Workflow Status" src="https://img.shields.io/github/workflow/status/jellyfin/jellyfin-plugin-subtitleextract/Test%20Build%20Plugin.svg">
-</a>
-<a href="https://github.com/jellyfin/jellyfin-plugin-subtitleextract">
-<img alt="MIT License" src="https://img.shields.io/github/license/jellyfin/jellyfin-plugin-subtitleextract.svg"/>
-</a>
-<a href="https://github.com/jellyfin/jellyfin-plugin-subtitleextract/releases">
-<img alt="Current Release" src="https://img.shields.io/github/release/jellyfin/jellyfin-plugin-subtitleextract.svg"/>
-</a>
-</p>
+4. Save, then go to **Catalog**, find **Subtitle Extract Plus**, and install
 
-## About
+### Manual install
 
-Plugin to automatically extract embedded subtitles proactively outside of playing media. It allows optional subtitle extraction during library scans, or as a scheduled task.
+1. Download the latest `SubtitleExtractPlus.dll` from the [Releases page](https://github.com/jnracreates/subtitle-extract-plus/releases)
+2. Create a folder called `SubtitleExtractPlus` inside your Jellyfin plugins directory
+3. Place the DLL inside that folder
+4. Restart Jellyfin
 
-## Installation
+## Configuration
 
-[See the official documentation for install instructions](https://jellyfin.org/docs/general/server/plugins/index.html#installing).
+After installing, go to **Dashboard → Plugins → Subtitle Extract Plus → Settings**.
 
-## Build
+| Setting | Description |
+|---|---|
+| **Languages to extract** | Comma-separated ISO 639-1 codes (`en, fr, de`). Empty = all languages. |
+| **Include forced subtitles** | Extract forced tracks (e.g. alien dialogue in an English film). |
+| **Include non-forced subtitles** | Extract full subtitle tracks. |
+| **Save subtitles next to media files** | When enabled, writes `.en.srt` next to the video. When disabled, uses Jellyfin's internal cache. |
+| **Path filter** | Limit extraction to items whose path starts with this string. Empty = process everything. Useful for testing on one movie. |
 
-1. To build this plugin you will need [.Net 6.x](https://dotnet.microsoft.com/download/dotnet/6.0).
+Then run **Dashboard → Scheduled Tasks → Extract Subtitles Plus → Run**, or set up a daily schedule trigger.
 
-2. Build plugin with following command
-  ```
-  dotnet publish --configuration Release --output bin
-  ```
+## Requirements
 
-3. Place the dll-file in the `plugins/subtitleextract` folder (you might need to create the folders) of your JF install
+- Jellyfin 12.0 or later
+- .NET 10.0 SDK (for building from source)
 
-## Releasing
+## Building from source
 
-To release the plugin we recommend [JPRM](https://github.com/oddstr13/jellyfin-plugin-repository-manager) that will build and package the plugin.
-For additional context and for how to add the packaged plugin zip to a plugin manifest see the [JPRM documentation](https://github.com/oddstr13/jellyfin-plugin-repository-manager) for more info.
+```bash
+git clone https://github.com/jnracreates/subtitle-extract-plus.git
+cd subtitle-extract-plus
+dotnet build --configuration Release
 
-## Contributing
+The compiled DLL is at Jellyfin.Plugin.SubtitleExtract/bin/Release/net10.0/SubtitleExtractPlus.dll.
+Credits
 
-We welcome all contributions and pull requests! If you have a larger feature in mind please open an issue so we can discuss the implementation before you start.
-In general refer to our [contributing guidelines](https://github.com/jellyfin/.github/blob/master/CONTRIBUTING.md) for further information.
-
-## Licence
-
-This plugins code and packages are distributed under the MIT License. See [LICENSE](./LICENSE.md) for more information.
+Forked from [jellyfin-plugin-subtitle-extract](https://github.com/jellyfin/jellyfin-plugin-subtitle-extract) by the Jellyfin team. Licensed under the MIT License.
