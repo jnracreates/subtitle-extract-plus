@@ -1,4 +1,25 @@
+# SubtitleExtractPlus
 
+A fork of [Jellyfin Subtitle Extract](https://github.com/jellyfin/jellyfin-plugin-subtitle-extract) with per-language and forced-track filtering, ISO 639-1 output filenames, and a path filter for testing.
+
+## Why this fork?
+
+The official Jellyfin Subtitle Extract plugin extracts every embedded subtitle stream to Jellyfin's internal cache. This fork gives you control over *which* tracks get extracted, and can optionally write subtitles **next to your media files** using Jellyfin's external subtitle naming convention (`.en.srt`, `.en.default.srt`, `.en.forced.srt`):
+
+- **Language filtering** — only extract the languages you want (`en`, `fr`, `de`, …)
+- **Forced / non-forced filtering** — extract only forced tracks, only full tracks, or both
+- **ISO 639-1 output** — writes `.en.srt` not `.eng.srt`, matching Jellyfin's convention
+- **Save with media (optional)** — when enabled, subtitles land next to the video using Jellyfin's external subtitle convention. When disabled, they go to Jellyfin's internal cache instead (same as the official plugin).
+- **Path filter** — limit extraction to a single movie or season for testing
+- **Idempotent** — skips files that already have a subtitle, so re-runs are fast
+
+## Installation
+
+### From a Jellyfin plugin repository (recommended)
+
+1. In Jellyfin, go to **Dashboard → Plugins → Repositories**
+2. Click **+** to add a new repository
+3. Enter the following URL: https://raw.githubusercontent.com/jnracreates/subtitle-extract-plus/master/manifest.json
 4. Save, then go to **Catalog**, find **Subtitle Extract Plus**, and install
 
 ### Manual install
