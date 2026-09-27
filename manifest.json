@@ -1,0 +1,21 @@
+[
+    {
+        "guid": "528acb30-72a8-4c27-b699-a27a80a3855c",
+        "name": "Subtitle Extract Plus",
+        "description": "A fork of Subtitle Extract with language filtering, forced/non-forced selection, ISO 639-1 output filenames, and optional save-with-media support.\n",
+        "overview": "Extracts embedded subtitles with per-language and forced-track filtering.",
+        "owner": "jnracreates",
+        "category": "Subtitles",
+        "versions": [
+            {
+                "version": "1.0.0.0",
+                "changelog": "- Initial release: language filtering, forced/non-forced selection, ISO 639-1 output",
+                "targetAbi": "12.0.0.0",
+                "sourceUrl": "https://github.com/jnracreates/subtitle-extract-plus/releases/download/v1.0.0.0/subtitle-extract-plus_1.0.0.0.zip",
+                "checksum": "9a6bdf014f96f86afbefaced07ded661",
+                "timestamp": "2026-09-27T16:37:59Z"
+            }
+        ],
+        "imageUrl": ""
+    }
+]
