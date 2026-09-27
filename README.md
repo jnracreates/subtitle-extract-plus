@@ -65,8 +65,12 @@ To force re-extraction of a specific file, delete the generated `.srt` next to t
 git clone https://github.com/jnracreates/subtitle-extract-plus.git
 cd subtitle-extract-plus
 dotnet build --configuration Release
-
+```
 The compiled DLL is at Jellyfin.Plugin.SubtitleExtract/bin/Release/net10.0/SubtitleExtractPlus.dll.
 Credits
 
 Forked from [jellyfin-plugin-subtitle-extract](https://github.com/jellyfin/jellyfin-plugin-subtitle-extract) by the Jellyfin team. Licensed under the MIT License.
+
+## Related projects
+
+**[ytfinall](https://github.com/jnracreates/ytfinall)** — Self-hosted YouTube → Jellyfin downloader with per-user libraries, a web UI, and a browser extension. Users log in with their Jellyfin account, add channels or single videos, and get them downloaded into a private library only they can see.
