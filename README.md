@@ -74,3 +74,11 @@ Forked from [jellyfin-plugin-subtitle-extract](https://github.com/jellyfin/jelly
 ## Related projects
 
 **[ytfinall](https://github.com/jnracreates/ytfinall)** — Self-hosted YouTube → Jellyfin downloader with per-user libraries, a web UI, and a browser extension. Users log in with their Jellyfin account, add channels or single videos, and get them downloaded into a private library only they can see.
+
+## Support this project
+
+If you find Subtitle Extract Plus useful and want to say thanks:
+
+- [GitHub Sponsors](https://github.com/sponsors/jnracreates) — monthly or one-time
+- [Ko-fi](https://ko-fi.com/jnracreates) — one-time
+- [Buy Me a Coffee](https://buymeacoffee.com/jnracreates) — one-time
