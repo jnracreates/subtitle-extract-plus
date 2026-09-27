@@ -50,6 +50,18 @@ After installing, go to **Dashboard → Plugins → Subtitle Extract Plus → Se
 
 Then run **Dashboard → Scheduled Tasks → Extract Subtitles Plus → Run**, or set up a daily schedule trigger.
 
+## Recommended Jellyfin library setting
+
+By default, Jellyfin extracts every embedded subtitle stream into its internal cache whenever you play a file. That defeats the point of having subtitles written next to your media — Jellyfin re-does the work anyway, and the cache grows.
+
+After extracting subtitles with this plugin, disable embedded subtitle extraction for each library:
+
+**Dashboard → Libraries → [your library] → Edit → Disable different types of embedded subtitles → Save**
+
+Jellyfin then uses the external `.en.srt` / `.en.forced.srt` files the plugin wrote, instead of extracting embedded streams on playback. This requires a library refresh, but only updates the database — it doesn't re-scan files.
+
+If a file has no external subtitle matching your filters, it will have no subtitle in the player. Episodes without a matching track simply have nothing to show.
+
 ## Re-extracting
 
 To force re-extraction of a specific file, delete the generated `.srt` next to the media file and run the task again. The plugin checks for existing files on disk and will re-extract anything missing.
@@ -66,7 +78,9 @@ git clone https://github.com/jnracreates/subtitle-extract-plus.git
 cd subtitle-extract-plus
 dotnet build --configuration Release
 
-The compiled DLL is at Jellyfin.Plugin.SubtitleExtract/bin/Release/net10.0/SubtitleExtractPlus.dll.
-Credits
+The compiled DLL is at
+Jellyfin.Plugin.SubtitleExtract/bin/Release/net10.0/SubtitleExtractPlus.dll
 
-Forked from [jellyfin-plugin-subtitle-extract](https://github.com/jellyfin/jellyfin-plugin-subtitle-extract) by the Jellyfin team. Licensed under the MIT License.
+## Credits
+
+Forked from jellyfin-plugin-subtitle-extract by the Jellyfin team. Licensed under the MIT License.
