@@ -1,3 +1,5 @@
+<img width="1376" height="768" alt="subtitleextractplus" src="https://github.com/user-attachments/assets/363323b8-7df1-4f0b-8d85-c2c8450844f1" />
+
 # SubtitleExtractPlus
 
 A fork of [Jellyfin Subtitle Extract](https://github.com/jellyfin/jellyfin-plugin-subtitle-extract) with per-language and forced-track filtering, ISO 639-1 output filenames, and a path filter for testing.
