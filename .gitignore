@@ -331,3 +331,4 @@ ASALocalRun/
 artifacts
 .idea
 *.kate-swp
+*.meta.json
