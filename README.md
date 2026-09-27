@@ -77,6 +77,7 @@ To force re-extraction of a specific file, delete the generated `.srt` next to t
 git clone https://github.com/jnracreates/subtitle-extract-plus.git
 cd subtitle-extract-plus
 dotnet build --configuration Release
+```
 
 The compiled DLL is at
 Jellyfin.Plugin.SubtitleExtract/bin/Release/net10.0/SubtitleExtractPlus.dll
