@@ -43,6 +43,10 @@ After installing, go to **Dashboard → Plugins → Subtitle Extract Plus → Se
 
 Then run **Dashboard → Scheduled Tasks → Extract Subtitles Plus → Run**, or set up a daily schedule trigger.
 
+## Re-extracting
+
+To force re-extraction of a specific file, delete the generated `.srt` next to the media file and run the task again. The plugin checks for existing files on disk and will re-extract anything missing.
+
 ## Requirements
 
 - Jellyfin 12.0 or later
