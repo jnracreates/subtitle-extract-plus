@@ -137,8 +137,17 @@ public static class SubtitleExtractor
         var mediaFileName = Path.GetFileNameWithoutExtension(mediaPath);
         var ffmpegPath = mediaEncoder.EncoderPath;
 
-        foreach (var stream in mediaSource.MediaStreams.Where(s => s.Type == MediaStreamType.Subtitle))
+        // Use subtitle-relative indexing so ffmpeg's `-map 0:s:N` is unambiguous.
+        // Jellyfin's MediaStream.Index can differ from ffmpeg's absolute stream
+        // numbering on some releases, which caused wrong-stream extraction.
+        var subtitleStreams = mediaSource.MediaStreams
+            .Where(s => s.Type == MediaStreamType.Subtitle)
+            .ToList();
+
+        for (var subtitleIndex = 0; subtitleIndex < subtitleStreams.Count; subtitleIndex++)
         {
+            var stream = subtitleStreams[subtitleIndex];
+
             if (!ShouldExtract(stream, config))
             {
                 continue;
@@ -147,10 +156,10 @@ public static class SubtitleExtractor
             if (!stream.IsTextSubtitleStream)
             {
                 logger.LogDebug(
-                    "Skipping non-text subtitle stream {Index} ({Codec}) in {Path} — SRT conversion not possible without OCR",
-                                stream.Index,
-                                stream.Codec,
-                                mediaPath);
+                    "Skipping non-text subtitle stream (subtitle index {SubIndex}, codec {Codec}) in {Path} — SRT conversion not possible without OCR",
+                    subtitleIndex,
+                    stream.Codec,
+                    mediaPath);
                 continue;
             }
 
@@ -164,9 +173,18 @@ public static class SubtitleExtractor
                 continue;
             }
 
+            logger.LogDebug(
+                "Extracting subtitle stream (subtitle index {SubIndex}, codec {Codec}, lang {Lang}, forced {Forced}, default {Default}) from {Path}",
+                subtitleIndex,
+                stream.Codec,
+                stream.Language,
+                stream.IsForced,
+                stream.IsDefault,
+                mediaPath);
+
             try
             {
-                await ExtractSingleStreamAsync(ffmpegPath, mediaPath, stream.Index, outputPath, logger, cancellationToken).ConfigureAwait(false);
+                await ExtractSingleStreamAsync(ffmpegPath, mediaPath, subtitleIndex, outputPath, logger, cancellationToken).ConfigureAwait(false);
             }
             catch (OperationCanceledException)
             {
@@ -176,8 +194,8 @@ public static class SubtitleExtractor
             {
                 logger.LogWarning(
                     ex,
-                    "Failed to extract subtitle stream {Index} from {Path}",
-                    stream.Index,
+                    "Failed to extract subtitle stream (subtitle index {SubIndex}) from {Path}",
+                    subtitleIndex,
                     mediaPath);
             }
         }
@@ -193,13 +211,13 @@ public static class SubtitleExtractor
     {
         var tempOutput = Path.Combine(
             Path.GetTempPath(),
-                                      string.Format(CultureInfo.InvariantCulture, "subextract-{0:N}.srt", Guid.NewGuid()));
+            string.Format(CultureInfo.InvariantCulture, "subextract-{0:N}.srt", Guid.NewGuid()));
 
         try
         {
             var args = string.Format(
                 CultureInfo.InvariantCulture,
-                "-nostdin -hide_banner -y -i \"{0}\" -map 0:{1} -an -vn -c:s srt -flush_packets 1 \"{2}\"",
+                "-nostdin -hide_banner -y -i \"{0}\" -map 0:s:{1} -an -vn -c:s srt -flush_packets 1 \"{2}\"",
                 inputPath,
                 streamIndex,
                 tempOutput);
