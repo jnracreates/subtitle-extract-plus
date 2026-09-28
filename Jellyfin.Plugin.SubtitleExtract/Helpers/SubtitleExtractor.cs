@@ -140,8 +140,10 @@ public static class SubtitleExtractor
         // Use subtitle-relative indexing so ffmpeg's `-map 0:s:N` is unambiguous.
         // Jellyfin's MediaStream.Index can differ from ffmpeg's absolute stream
         // numbering on some releases, which caused wrong-stream extraction.
+        // Also skip external streams — they're .srt files on disk, not inside the
+        // container, so ffmpeg doesn't count them for -map 0:s:N.
         var subtitleStreams = mediaSource.MediaStreams
-            .Where(s => s.Type == MediaStreamType.Subtitle)
+            .Where(s => s.Type == MediaStreamType.Subtitle && !s.IsExternal)
             .ToList();
 
         for (var subtitleIndex = 0; subtitleIndex < subtitleStreams.Count; subtitleIndex++)
@@ -245,10 +247,10 @@ public static class SubtitleExtractor
             {
                 logger.LogDebug(
                     "ffmpeg produced no output for stream {Index} in {Path} (likely empty track). Exit code {Code}. Stderr tail: {Stderr}",
-                                streamIndex,
-                                inputPath,
-                                process.ExitCode,
-                                Truncate(stderr, 300));
+                    streamIndex,
+                    inputPath,
+                    process.ExitCode,
+                    Truncate(stderr, 300));
                 return;
             }
 
