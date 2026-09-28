@@ -1,7 +1,7 @@
 name: "Subtitle Extract Plus"
 guid: "528acb30-72a8-4c27-b699-a27a80a3855c"
 imageUrl: "https://raw.githubusercontent.com/jnracreates/subtitle-extract-plus/master/icon.png"
-version: 2
+version: 3
 targetAbi: "12.0.0.0"
 framework: "net10.0"
 owner: "jnracreates"
@@ -14,5 +14,5 @@ category: "Subtitles"
 artifacts:
   - "SubtitleExtractPlus.dll"
 changelog: |-
-  - Per-stream ffmpeg extraction: empty forced tracks no longer cascade failures into other streams
-  - Skips graphical subtitles (PGS/DVDSUB) that can't be converted to SRT without OCR
+  - Fix wrong-stream extraction on files where Jellyfin's MediaStream.Index doesn't match ffprobe's stream numbering
+  - Uses subtitle-relative ffmpeg mapping (-map 0:s:N) instead of absolute stream index

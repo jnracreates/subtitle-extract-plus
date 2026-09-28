@@ -8,12 +8,12 @@
         "category": "Subtitles",
         "versions": [
             {
-                "version": "2.0.0.0",
-                "changelog": "- Initial release: language filtering, forced/non-forced selection, ISO 639-1 output",
+                "version": "3.0.0.0",
+                "changelog": "- Fix wrong-stream extraction on files where Jellyfin's MediaStream.Index doesn't match ffprobe's stream numbering\n- Uses subtitle-relative ffmpeg mapping (-map 0:s:N) instead of absolute stream index",
                 "targetAbi": "12.0.0.0",
-                "sourceUrl": "https://github.com/jnracreates/subtitle-extract-plus/releases/download/v2.0.0.0/subtitle-extract-plus_2.0.0.0.zip",
-                "checksum": "687dc7d1f5e3c99e0916c9b944d5a96c",
-                "timestamp": "2026-09-27T17:37:03Z"
+                "sourceUrl": "https://github.com/jnracreates/subtitle-extract-plus/releases/download/v3.0.0.0/subtitle-extract-plus_3.0.0.0.zip",
+                "checksum": "9b4cba00561579846dbc622102dc6192",
+                "timestamp": "2026-09-28T01:24:13Z"
             }
         ],
         "imageUrl": "https://raw.githubusercontent.com/jnracreates/subtitle-extract-plus/master/icon.png"
