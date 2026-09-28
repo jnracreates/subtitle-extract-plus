@@ -50,17 +50,13 @@ After installing, go to **Dashboard → Plugins → Subtitle Extract Plus → Se
 
 Then run **Dashboard → Scheduled Tasks → Extract Subtitles Plus → Run**, or set up a daily schedule trigger.
 
-## Recommended Jellyfin library setting
+## Library setting note
 
-By default, Jellyfin extracts every embedded subtitle stream into its internal cache whenever you play a file. That defeats the point of having subtitles written next to your media — Jellyfin re-does the work anyway, and the cache grows.
+Leave embedded subtitles enabled in your library settings (**Dashboard → Libraries → [your library] → Edit → "Allow Text"** or "Allow All").
 
-After extracting subtitles with this plugin, disable embedded subtitle extraction for each library:
+The plugin queries Jellyfin's database for items that have embedded subtitles. If you set the library to "Allow None", Jellyfin strips that flag from its database, the plugin can't find any items, and the task runs to completion without extracting anything.
 
-**Dashboard → Libraries → [your library] → Edit → Disable different types of embedded subtitles → Save**
-
-Jellyfin then uses the external `.en.srt` / `.en.forced.srt` files the plugin wrote, instead of extracting embedded streams on playback. This requires a library refresh, but only updates the database — it doesn't re-scan files.
-
-If a file has no external subtitle matching your filters, it will have no subtitle in the player. Episodes without a matching track simply have nothing to show.
+With embedded subtitles allowed, Jellyfin prefers any external `.en.srt` / `.en.forced.srt` file the plugin wrote over extracting from the container. Playback extraction only happens for files the plugin hasn't processed yet.
 
 ## Re-extracting
 
