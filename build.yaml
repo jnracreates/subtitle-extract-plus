@@ -14,5 +14,5 @@ category: "Subtitles"
 artifacts:
   - "SubtitleExtractPlus.dll"
 changelog: |-
-  - Fix wrong-stream extraction on files where Jellyfin's MediaStream.Index doesn't match ffprobe's stream numbering
-  - Uses subtitle-relative ffmpeg mapping (-map 0:s:N) instead of absolute stream index
+  - Filter external subtitle streams from ffmpeg mapping
+  - Fixes extraction on files that have existing .srt files on disk
