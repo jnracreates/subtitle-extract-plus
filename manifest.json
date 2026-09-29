@@ -2,18 +2,26 @@
     {
         "guid": "528acb30-72a8-4c27-b699-a27a80a3855c",
         "name": "Subtitle Extract Plus",
-        "description": "A fork of Subtitle Extract with language filtering, forced/non-forced selection, ISO 639-1 output filenames, and optional save-with-media support.\n",
+        "description": "Fork of Subtitle Extract with per-language and forced/non-forced track selection, configurable default-language preference, extraction caching, and on-add extraction. Saves subtitles next to the media file using Jellyfin's external subtitle naming convention.",
         "overview": "Extracts embedded subtitles with per-language and forced-track filtering.",
         "owner": "jnracreates",
         "category": "Subtitles",
         "versions": [
             {
+                "version": "5.0.0.0",
+                "changelog": "5.0.0.0: configurable default-language preference with fallback chain; extraction cache; on-add extraction; empty forced-track resilience; fixed config-save enum serialization; fixed extraction being skipped when library exposes no subtitle streams; Jellyfin 12 IPluginServiceRegistrator support.",
+                "targetAbi": "12.0.0.0",
+                "sourceUrl": "https://github.com/jnracreates/subtitle-extract-plus/releases/download/v5.0.0.0/subtitle-extract-plus_5.0.0.0.zip",
+                "checksum": "f2eac67132585e65e22a9c26e4e4d4d6",
+                "timestamp": "2026-09-28T18:06:00Z"
+            },
+            {
                 "version": "4.0.0.0",
-                "changelog": "- Filter external subtitle streams from ffmpeg mapping\n- Fixes extraction on files that have existing .srt files on disk",
+                "changelog": "4.0.0.0: per-language and forced/non-forced track selection; save subtitles next to media files using Jellyfin's external subtitle naming convention.",
                 "targetAbi": "12.0.0.0",
                 "sourceUrl": "https://github.com/jnracreates/subtitle-extract-plus/releases/download/v4.0.0.0/subtitle-extract-plus_4.0.0.0.zip",
-                "checksum": "c768e98d3b60c54bf87c9acff5d0fcd6",
-                "timestamp": "2026-09-28T02:35:31Z"
+                "checksum": "REPLACE_WITH_4.0.0.0_CHECKSUM",
+                "timestamp": "2026-09-20T00:00:00Z"
             }
         ],
         "imageUrl": "https://raw.githubusercontent.com/jnracreates/subtitle-extract-plus/master/icon.png"

@@ -1,18 +1,25 @@
 name: "Subtitle Extract Plus"
 guid: "528acb30-72a8-4c27-b699-a27a80a3855c"
 imageUrl: "https://raw.githubusercontent.com/jnracreates/subtitle-extract-plus/master/icon.png"
-version: 4
+version: "5.0.0.0"
 targetAbi: "12.0.0.0"
 framework: "net10.0"
 owner: "jnracreates"
 overview: "Extracts embedded subtitles with per-language and forced-track filtering."
 description: >
-  A fork of Subtitle Extract with language filtering, forced/non-forced selection,
-  ISO 639-1 output filenames, and optional save-with-media support.
+  A fork of Subtitle Extract with language filtering, forced/non-forced
+  selection, configurable default-language preference with fallback chain,
+  extraction caching, and on-add extraction. Saves subtitles next to the
+  media file using Jellyfin's external subtitle naming convention.
 
 category: "Subtitles"
 artifacts:
   - "SubtitleExtractPlus.dll"
 changelog: |-
-  - Filter external subtitle streams from ffmpeg mapping
-  - Fixes extraction on files that have existing .srt files on disk
+  - Configurable default-language preference with fallback chain
+  - Extraction cache skips unchanged files
+  - On-add extraction for newly added items
+  - Empty forced-track resilience
+  - Fixed config-save enum serialization
+  - Fixed extraction skipped when library exposes no subtitle streams
+  - Jellyfin 12 IPluginServiceRegistrator support
