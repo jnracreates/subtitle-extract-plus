@@ -83,9 +83,9 @@ After installing, go to **Dashboard → Plugins → Subtitle Extract Plus → Se
 |---|---|
 | **Skip files whose media hasn't changed** | Enables the extraction cache, keyed on media file size and mtime. |
 | **Cache TTL (days)** | `0` = never expires. |
+<img width="822" height="1158" alt="subexpls1" src="https://github.com/user-attachments/assets/440ea433-ff49-438b-8cec-1c2fd16ce572" />
+<img width="822" height="985" alt="subexpls2" src="https://github.com/user-attachments/assets/62c2b9e6-934c-43ab-830d-39a4e9ed720f" />
 
-<img width="826" height="1154" alt="subexpls1" src="https://github.com/user-attachments/assets/a8d744cb-2584-4e84-8880-330c2c81e946" />
-<img width="829" height="1124" alt="subexpls2" src="https://github.com/user-attachments/assets/9f7c7348-83b0-4aa2-8660-37e257ae8887" />
 
 Then run **Dashboard → Scheduled Tasks → Extract Subtitles Plus → Run**, or set up a daily schedule trigger.
 
