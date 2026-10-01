@@ -127,17 +127,24 @@ With embedded subtitles allowed, Jellyfin still prefers any external `.en.srt` /
 The cache is keyed on the media file's size and mtime. Every run:
 
 - If size and mtime match the last successful extraction → skipped (fast)
-- If the file has changed → re-extracted
+- If the file has changed → old sidecars deleted, fresh extraction from the new file
 - Files where every stream was filtered out by your forced/non-forced settings are *not* cached, so flipping those settings picks them up on the next run without a manual cache clear
 
 The cache lives at `<jellyfin-config>/plugins/configurations/subtitle-extract-cache.json`. Delete it to force a full re-extraction on the next run.
 
+## Recompressed media
+
+If an external tool (FileFlows, HandBrake, Tdarr, etc.) rewrites your video files — changing their size or mtime — the plugin detects the change on its next run, deletes the sidecar files it previously wrote for that item, and re-extracts against the new version. Only files the plugin created are deleted; manually-added subtitles are never touched.
+
 ## Re-extracting
 
-To force re-extraction of a specific file:
+To force re-extraction of a specific file without changing the media:
 
-- **Without the cache:** delete the generated `.srt` next to the media file and run the task. The plugin checks for existing files and will re-extract anything missing.
-- **With the cache:** also delete the cache file (or disable the cache setting temporarily) — otherwise the file is skipped because its media mtime hasn't changed.
+- **Without the cache:** delete the generated `.srt` next to the media file and run the task.
+- **With the cache:** touch the media file (`touch "Movie.mkv"`) to bump its mtime, then run the task. The plugin will delete the old sidecar and re-extract.
+- **Full reset:** delete `<jellyfin-config>/plugins/configurations/subtitle-extract-cache.json` and restart Jellyfin.
+
+If the media file genuinely changed (recompressed, remuxed, replaced), no action is needed — the next scheduled run handles it automatically.
 
 ## Requirements
 
@@ -156,6 +163,12 @@ The compiled DLL is at
 `Jellyfin.Plugin.SubtitleExtract/bin/Release/net10.0/SubtitleExtractPlus.dll`
 
 ## Changelog
+
+### 5.0.1.0
+
+- Stale sidecars are now deleted and re-extracted when the media file changes (size or mtime)
+- Cache entries track which sidecar files were written, so only those are cleaned up — manually-added subtitles are never touched
+- Removed the redundant `File.Exists` skip guard; the cache is now the sole source of truth for whether a file needs re-extraction
 
 ### 5.0.0.0
 
