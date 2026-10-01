@@ -31,7 +31,7 @@ public class SubtitleExtractPlugin : BasePlugin<PluginConfiguration>, IHasWebPag
     public override Guid Id => new("528acb30-72a8-4c27-b699-a27a80a3855c");
 
     /// <inheritdoc />
-    public override string Description => "Fork of Subtitle Extract with per-language and forced/non-forced track selection, and the option to save extracted subtitles next to the media file using Jellyfin's external subtitle naming convention.";
+    public override string Description => "Fork of Subtitle Extract with per-language and forced/non-forced track selection, configurable default-language preference, extraction caching, and on-add extraction. Saves subtitles next to the media file using Jellyfin's external subtitle naming convention.";
 
     /// <summary>
     /// Gets the current plugin instance.

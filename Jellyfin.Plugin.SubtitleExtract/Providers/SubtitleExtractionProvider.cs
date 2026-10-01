@@ -27,20 +27,30 @@ public class SubtitleExtractionProvider : ICustomMetadataProvider<Episode>,
 
     private readonly IMediaEncoder _mediaEncoder;
 
+    private readonly ILanguageSelector _languageSelector;
+
+    private readonly IExtractionCache _cache;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="SubtitleExtractionProvider"/> class.
     /// </summary>
     /// <param name="subtitleEncoder"><see cref="ISubtitleEncoder"/> instance.</param>
     /// <param name="mediaEncoder"><see cref="IMediaEncoder"/> instance for the ffmpeg path.</param>
+    /// <param name="languageSelector">Language selector for default-sidecar selection.</param>
+    /// <param name="cache">Extraction cache.</param>
     /// <param name="logger">Instance of the <see cref="ILogger"/> interface.</param>
     public SubtitleExtractionProvider(
         ISubtitleEncoder subtitleEncoder,
         IMediaEncoder mediaEncoder,
+        ILanguageSelector languageSelector,
+        IExtractionCache cache,
         ILogger<SubtitleExtractionProvider> logger)
     {
         _logger = logger;
         _encoder = subtitleEncoder;
         _mediaEncoder = mediaEncoder;
+        _languageSelector = languageSelector;
+        _cache = cache;
     }
 
     /// <inheritdoc />
@@ -100,7 +110,7 @@ public class SubtitleExtractionProvider : ICustomMetadataProvider<Episode>,
 
                 if (config.SaveWithMedia)
                 {
-                    await SubtitleExtractor.ExtractToMediaFolderAsync(item, mediaSource, config, _mediaEncoder, _logger, cancellationToken).ConfigureAwait(false);
+                    await SubtitleExtractor.ExtractToMediaFolderAsync(item, mediaSource, config, _mediaEncoder, _logger, _languageSelector, _cache, cancellationToken).ConfigureAwait(false);
                 }
                 else
                 {

@@ -92,6 +92,59 @@
                     <div class="fieldDescription checkboxFieldDescription">When enabled, subtitles are written as external files (<code>Movie.en.srt</code>, <code>Movie.en.forced.srt</code>) in the same folder as the video, using Jellyfin's naming convention. When disabled, subtitles are stored in Jellyfin's internal cache.</div>
                 </div>
 
+                <!-- Default language selection -->
+                <h3 class="checkboxListLabel" style="margin-top: 1.5em;">Default Subtitle Language</h3>
+
+                <div class="inputContainer">
+                    <label class="inputLabel inputLabelUnfocused" for="txtPreferredDefaultLanguages">Preferred default languages</label>
+                    <input id="txtPreferredDefaultLanguages" type="text" is="emby-input" />
+                    <div class="fieldDescription">Ranked, comma-separated language codes (ISO 639-1 or 639-2). The first language found in the file becomes the <code>.default.</code> sidecar. Example: <code>en, fr, uk</code>. Leave empty to always use the fallback behavior below.</div>
+                </div>
+
+                <div class="selectContainer">
+                    <label class="selectLabel" for="selFallbackBehavior">Fallback when none of the preferred languages is present</label>
+                    <select is="emby-select" id="selFallbackBehavior" class="emby-select-withcolor emby-select">
+                        <option value="Skip">Skip — don't mark any sidecar as default</option>
+                        <option value="StreamDefault">Use the stream the container flags as default</option>
+                        <option value="FirstStream">Use the first subtitle stream in the file</option>
+                        <option value="LastResort">Use the last-resort language below</option>
+                    </select>
+                </div>
+
+                <div class="inputContainer">
+                    <label class="inputLabel inputLabelUnfocused" for="txtLastResortLanguage">Last-resort language</label>
+                    <input id="txtLastResortLanguage" type="text" is="emby-input" />
+                    <div class="fieldDescription">Only used when the fallback above is set to "last-resort language". Example: <code>en</code>.</div>
+                </div>
+
+                <!-- On-add extraction -->
+                <h3 class="checkboxListLabel" style="margin-top: 1.5em;">New Item Extraction</h3>
+
+                <div class="checkboxContainer checkboxContainer-withDescription">
+                    <label>
+                        <input is="emby-checkbox" type="checkbox" id="chkExtractOnItemAdded"/>
+                        <span>Extract subtitles when new items are added to the library</span>
+                    </label>
+                    <div class="fieldDescription checkboxFieldDescription">Runs the extractor on new episodes and movies shortly after they appear, in addition to the scheduled task. Useful if you've disabled subtitle display in your libraries and rely on external sidecars.</div>
+                </div>
+
+                <div class="inputContainer">
+                    <label class="inputLabel inputLabelUnfocused" for="txtItemAddedDebounceSeconds">Debounce (seconds)</label>
+                    <input id="txtItemAddedDebounceSeconds" type="number" min="5" max="600" is="emby-input" />
+                    <div class="fieldDescription">How long to wait after the last item-added event before starting extraction. Prevents an ffmpeg storm during a bulk library import. Default: 30.</div>
+                </div>
+
+                <!-- Cache -->
+                <h3 class="checkboxListLabel" style="margin-top: 1.5em;">Extraction Cache</h3>
+
+                <div class="checkboxContainer checkboxContainer-withDescription">
+                    <label>
+                        <input is="emby-checkbox" type="checkbox" id="chkUseExtractionCache"/>
+                        <span>Skip files whose media hasn't changed since the last successful run</span>
+                    </label>
+                    <div class="fieldDescription checkboxFieldDescription">When enabled, the extractor keeps a small cache of file mtimes and sizes so repeated runs (including the on-add handler) don't re-run ffmpeg unnecessarily.</div>
+                </div>
+
                 <!-- Advanced Mode Toggle -->
                 <div class="checkboxContainer checkboxContainer-withDescription" style="margin-top: 1.5em;">
                     <label>
@@ -178,6 +231,12 @@
                     page.querySelector('#chkForcedSubtitles').checked = config.IncludeForcedSubtitles !== false;
                     page.querySelector('#chkNonForcedSubtitles').checked = config.IncludeNonForcedSubtitles !== false;
                     page.querySelector('#chkSaveWithMedia').checked = config.SaveWithMedia !== false;
+                    page.querySelector('#txtPreferredDefaultLanguages').value = (config.PreferredDefaultLanguages || []).join(', ');
+                    page.querySelector('#selFallbackBehavior').value = config.FallbackBehavior || 'StreamDefault';
+                    page.querySelector('#txtLastResortLanguage').value = config.LastResortLanguage || 'en';
+                    page.querySelector('#chkExtractOnItemAdded').checked = !!config.ExtractOnItemAdded;
+                    page.querySelector('#txtItemAddedDebounceSeconds').value = config.ItemAddedDebounceSeconds || 30;
+                    page.querySelector('#chkUseExtractionCache').checked = config.UseExtractionCache !== false;
 
                     generateCheckboxList(config.AllSubtitleCodecs, config.SelectedCodecs, "includedCodecsCheckboxes");
 
@@ -204,6 +263,12 @@
                     config.IncludeForcedSubtitles = form.querySelector('#chkForcedSubtitles').checked;
                     config.IncludeNonForcedSubtitles = form.querySelector('#chkNonForcedSubtitles').checked;
                     config.SaveWithMedia = form.querySelector('#chkSaveWithMedia').checked;
+                    config.PreferredDefaultLanguages = form.querySelector('#txtPreferredDefaultLanguages').value.split(',').map(function (s) { return s.trim(); }).filter(function (s) { return s.length > 0; });
+                    config.FallbackBehavior = form.querySelector('#selFallbackBehavior').value;
+                    config.LastResortLanguage = form.querySelector('#txtLastResortLanguage').value.trim();
+                    config.ExtractOnItemAdded = form.querySelector('#chkExtractOnItemAdded').checked;
+                    config.ItemAddedDebounceSeconds = parseInt(form.querySelector('#txtItemAddedDebounceSeconds').value, 10) || 30;
+                    config.UseExtractionCache = form.querySelector('#chkUseExtractionCache').checked;
                     config.SelectedSubtitlesLibraries = getChecked('librarySubtitlesCheckboxes');
                     config.SelectedAttachmentsLibraries = getChecked('libraryAttachmentsCheckboxes');
                     config.SelectedCodecs = getChecked('includedCodecsCheckboxes');

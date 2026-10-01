@@ -6,6 +6,25 @@ using MediaBrowser.Model.Plugins;
 namespace Jellyfin.Plugin.SubtitleExtractPlus.Configuration;
 
 /// <summary>
+/// How to choose a default subtitle stream when none of the preferred
+/// languages is present in the file.
+/// </summary>
+public enum DefaultLanguageFallback
+{
+    /// <summary>Don't mark any sidecar as default.</summary>
+    Skip = 0,
+
+    /// <summary>Use the stream the container flags as default.</summary>
+    StreamDefault = 1,
+
+    /// <summary>Use the first subtitle stream in the container.</summary>
+    FirstStream = 2,
+
+    /// <summary>Use the configured LastResortLanguage.</summary>
+    LastResort = 3
+}
+
+/// <summary>
 /// Plugin configuration.
 /// </summary>
 public class PluginConfiguration : BasePluginConfiguration
@@ -95,12 +114,6 @@ public class PluginConfiguration : BasePluginConfiguration
     public string PathFilter { get; set; } = string.Empty;
 
     /// <summary>
-    /// Gets or sets an optional path prefix. When set, only items under this
-    /// path are processed. Empty = process everything. Useful for testing on
-    /// a single movie or season without walking the whole library.
-    /// </summary>
-
-    /// <summary>
     /// Gets or sets a value indicating whether forced subtitles are extracted.
     /// </summary>
     public bool IncludeForcedSubtitles { get; set; } = true;
@@ -115,4 +128,48 @@ public class PluginConfiguration : BasePluginConfiguration
     /// instead of into Jellyfin's internal cache. When false, the legacy behaviour is used.
     /// </summary>
     public bool SaveWithMedia { get; set; } = true;
+
+    /// <summary>
+    /// Gets or sets the ranked list of language codes (ISO 639-1 or 639-2)
+    /// used to pick the default sidecar. First match wins. Empty = fall back
+    /// to <see cref="FallbackBehavior"/> immediately.
+    /// </summary>
+    public string[] PreferredDefaultLanguages { get; set; } = ["en"];
+
+    /// <summary>
+    /// Gets or sets what to do when none of the preferred languages is
+    /// present in the file.
+    /// </summary>
+    public DefaultLanguageFallback FallbackBehavior { get; set; } = DefaultLanguageFallback.StreamDefault;
+
+    /// <summary>
+    /// Gets or sets the language code used when
+    /// <see cref="FallbackBehavior"/> is <see cref="DefaultLanguageFallback.LastResort"/>.
+    /// </summary>
+    public string LastResortLanguage { get; set; } = "en";
+
+    /// <summary>
+    /// Gets or sets a value indicating whether new items added to the
+    /// library are extracted immediately (debounced) in addition to the
+    /// daily scheduled task.
+    /// </summary>
+    public bool ExtractOnItemAdded { get; set; }
+
+    /// <summary>
+    /// Gets or sets how long (in seconds) to wait after the last
+    /// <c>ItemAdded</c> event before processing. Prevents an ffmpeg storm
+    /// during bulk library imports.
+    /// </summary>
+    public int ItemAddedDebounceSeconds { get; set; } = 30;
+
+    /// <summary>
+    /// Gets or sets a value indicating whether files whose media mtime/size
+    /// haven't changed since the last successful run are skipped.
+    /// </summary>
+    public bool UseExtractionCache { get; set; } = true;
+
+    /// <summary>
+    /// Gets or sets the cache lifetime in days. 0 = never expires.
+    /// </summary>
+    public int ExtractionCacheTtlDays { get; set; }
 }

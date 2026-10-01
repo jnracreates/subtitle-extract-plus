@@ -29,6 +29,8 @@ public class ExtractSubtitlesTask : IScheduledTask
     private readonly ILocalizationManager _localization;
     private readonly ISubtitleEncoder _encoder;
     private readonly IMediaEncoder _mediaEncoder;
+    private readonly ILanguageSelector _languageSelector;
+    private readonly IExtractionCache _cache;
     private readonly ILogger<ExtractSubtitlesTask> _logger;
 
     private static readonly BaseItemKind[] _itemTypes = [BaseItemKind.Episode, BaseItemKind.Movie];
@@ -43,18 +45,24 @@ public class ExtractSubtitlesTask : IScheduledTask
     /// <param name="subtitleEncoder"><see cref="ISubtitleEncoder"/> instance.</param>
     /// <param name="mediaEncoder"><see cref="IMediaEncoder"/> instance for ffmpeg path.</param>
     /// <param name="localization">Instance of <see cref="ILocalizationManager"/> interface.</param>
+    /// <param name="languageSelector">Language selector for default-sidecar selection.</param>
+    /// <param name="cache">Extraction cache.</param>
     /// <param name="logger">Instance of <see cref="ILogger"/> interface.</param>
     public ExtractSubtitlesTask(
         ILibraryManager libraryManager,
         ISubtitleEncoder subtitleEncoder,
         IMediaEncoder mediaEncoder,
         ILocalizationManager localization,
+        ILanguageSelector languageSelector,
+        IExtractionCache cache,
         ILogger<ExtractSubtitlesTask> logger)
     {
         _libraryManager = libraryManager;
         _localization = localization;
         _encoder = subtitleEncoder;
         _mediaEncoder = mediaEncoder;
+        _languageSelector = languageSelector;
+        _cache = cache;
         _logger = logger;
     }
 
@@ -123,7 +131,6 @@ public class ExtractSubtitlesTask : IScheduledTask
         var query = new InternalItemsQuery
         {
             Recursive = true,
-            HasSubtitles = true,
             IsVirtualItem = false,
             IncludeItemTypes = _itemTypes,
             DtoOptions = _dtoOptions,
@@ -177,7 +184,7 @@ public class ExtractSubtitlesTask : IScheduledTask
                 {
                     if (config.SaveWithMedia)
                     {
-                        await SubtitleExtractor.ExtractToMediaFolderAsync(video, mediaSource, config, _mediaEncoder, _logger, cancellationToken).ConfigureAwait(false);
+                        await SubtitleExtractor.ExtractToMediaFolderAsync(video, mediaSource, config, _mediaEncoder, _logger, _languageSelector, _cache, cancellationToken).ConfigureAwait(false);
                     }
                     else
                     {

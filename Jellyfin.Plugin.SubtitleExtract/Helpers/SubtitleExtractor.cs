@@ -103,13 +103,17 @@ public static class SubtitleExtractor
     /// <summary>
     /// Extracts every matching subtitle stream from a media source to the media folder.
     /// Each stream is extracted with its own ffmpeg call, so an empty or unreadable
-    /// track cannot cause failures in other tracks.
+    /// track cannot cause failures in other tracks. The language selector picks
+    /// which stream receives the ".default." filename suffix, and the extraction
+    /// cache skips unchanged files.
     /// </summary>
     /// <param name="item">The media item.</param>
     /// <param name="mediaSource">The media source.</param>
     /// <param name="config">The plugin configuration.</param>
     /// <param name="mediaEncoder">The media encoder, used for the ffmpeg path.</param>
     /// <param name="logger">The logger.</param>
+    /// <param name="languageSelector">Picks the default subtitle stream.</param>
+    /// <param name="cache">Tracks successfully-processed media files.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     public static async Task ExtractToMediaFolderAsync(
@@ -118,6 +122,8 @@ public static class SubtitleExtractor
         PluginConfiguration config,
         IMediaEncoder mediaEncoder,
         ILogger logger,
+        ILanguageSelector languageSelector,
+        IExtractionCache cache,
         CancellationToken cancellationToken)
     {
         var mediaPath = item.Path;
@@ -137,6 +143,49 @@ public static class SubtitleExtractor
         var mediaFileName = Path.GetFileNameWithoutExtension(mediaPath);
         var ffmpegPath = mediaEncoder.EncoderPath;
 
+        var mediaFile = new FileInfo(mediaPath);
+        var cacheKey = string.Format(
+            CultureInfo.InvariantCulture,
+            "{0:N}:{1}",
+            item.Id,
+            mediaSource.Id);
+
+        if (cache.IsFresh(cacheKey, mediaFile))
+        {
+            logger.LogDebug("Extraction cache hit for {Path}; skipping", mediaPath);
+            return;
+        }
+
+        // Delete sidecars written during the previous run so we regenerate them
+        // from the current version of the media file. This handles the case where
+        // the file was recompressed (e.g. by FileFlows or HandBrake) and its
+        // subtitle streams changed. Only paths we recorded are touched — manually
+        // added sidecars are never deleted.
+        var staleSidecars = cache.GetEntry(cacheKey)?.WrittenSidecars ?? Array.Empty<string>();
+        if (staleSidecars.Length > 0)
+        {
+            logger.LogDebug(
+                "Cleaning {Count} stale sidecar(s) for {Path}",
+                staleSidecars.Length,
+                mediaPath);
+
+            foreach (var oldPath in staleSidecars)
+            {
+                try
+                {
+                    if (File.Exists(oldPath))
+                    {
+                        File.Delete(oldPath);
+                        logger.LogDebug("Deleted stale sidecar: {Path}", oldPath);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    logger.LogWarning(ex, "Could not delete stale sidecar: {Path}", oldPath);
+                }
+            }
+        }
+
         // Use subtitle-relative indexing so ffmpeg's `-map 0:s:N` is unambiguous.
         // Jellyfin's MediaStream.Index can differ from ffmpeg's absolute stream
         // numbering on some releases, which caused wrong-stream extraction.
@@ -145,6 +194,11 @@ public static class SubtitleExtractor
         var subtitleStreams = mediaSource.MediaStreams
             .Where(s => s.Type == MediaStreamType.Subtitle && !s.IsExternal)
             .ToList();
+
+        var defaultStream = languageSelector.SelectDefault(subtitleStreams, config, logger);
+        var defaultIndex = defaultStream?.Index;
+        var extractedIndices = new List<int>();
+        var writtenSidecars = new List<string>();
 
         for (var subtitleIndex = 0; subtitleIndex < subtitleStreams.Count; subtitleIndex++)
         {
@@ -166,14 +220,14 @@ public static class SubtitleExtractor
             }
 
             var lang = NormalizeToIso1(stream.Language);
-            var fileName = BuildFileName(mediaFileName, lang, stream.IsForced, stream.IsDefault, OutputFormat);
+            var isDefault = stream.Index == defaultIndex;
+            var fileName = BuildFileName(mediaFileName, lang, stream.IsForced, isDefault, OutputFormat);
             var outputPath = Path.Combine(mediaDirectory, fileName);
 
-            if (File.Exists(outputPath))
-            {
-                logger.LogDebug("Subtitle already exists: {Path}", outputPath);
-                continue;
-            }
+            // Note: no File.Exists check here. The cache is the source of truth
+            // for whether a file is current. If we've reached this point, either
+            // the cache was stale (media file changed) or there's no cache entry
+            // at all — both cases mean we should re-extract.
 
             logger.LogDebug(
                 "Extracting subtitle stream (subtitle index {SubIndex}, codec {Codec}, lang {Lang}, forced {Forced}, default {Default}) from {Path}",
@@ -187,6 +241,12 @@ public static class SubtitleExtractor
             try
             {
                 await ExtractSingleStreamAsync(ffmpegPath, mediaPath, subtitleIndex, outputPath, logger, cancellationToken).ConfigureAwait(false);
+                extractedIndices.Add(stream.Index);
+
+                if (File.Exists(outputPath))
+                {
+                    writtenSidecars.Add(outputPath);
+                }
             }
             catch (OperationCanceledException)
             {
@@ -200,6 +260,22 @@ public static class SubtitleExtractor
                     subtitleIndex,
                     mediaPath);
             }
+        }
+
+        // Only cache when we actually extracted something OR when there is
+        // genuinely nothing extractable in the file. If we skipped every
+        // stream because of the user's forced/non-forced filters, leave the
+        // cache cold so a future config change can pick the file up.
+        var anyExtractable = subtitleStreams.Any(s => ShouldExtract(s, config));
+        if (extractedIndices.Count > 0 || !anyExtractable)
+        {
+            cache.MarkProcessed(
+                cacheKey,
+                mediaFile,
+                defaultStream?.Language,
+                extractedIndices.ToArray(),
+                writtenSidecars.ToArray());
+            cache.Save();
         }
     }
 
