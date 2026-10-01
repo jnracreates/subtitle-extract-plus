@@ -8,20 +8,20 @@
         "category": "Subtitles",
         "versions": [
             {
+                "version": "5.0.1.0",
+                "changelog": "5.0.1.0: fixed stale sidecar handling when media files change (e.g. recompression by FileFlows/HandBrake). Old sidecars are now deleted and re-extracted when the media file's size or mtime changes.",
+                "targetAbi": "12.0.0.0",
+                "sourceUrl": "https://github.com/jnracreates/subtitle-extract-plus/releases/download/v5.0.1.0/subtitle-extract-plus_5.0.1.0.zip",
+                "checksum": "e5525d22713915ce2066520b18f5773a",
+                "timestamp": "2026-10-01T00:00:00Z"
+            },
+            {
                 "version": "5.0.0.0",
                 "changelog": "5.0.0.0: configurable default-language preference with fallback chain; extraction cache; on-add extraction; empty forced-track resilience; fixed config-save enum serialization; fixed extraction being skipped when library exposes no subtitle streams; Jellyfin 12 IPluginServiceRegistrator support.",
                 "targetAbi": "12.0.0.0",
                 "sourceUrl": "https://github.com/jnracreates/subtitle-extract-plus/releases/download/v5.0.0.0/subtitle-extract-plus_5.0.0.0.zip",
                 "checksum": "f2eac67132585e65e22a9c26e4e4d4d6",
                 "timestamp": "2026-09-28T18:06:00Z"
-            },
-            {
-                "version": "4.0.0.0",
-                "changelog": "4.0.0.0: per-language and forced/non-forced track selection; save subtitles next to media files using Jellyfin's external subtitle naming convention.",
-                "targetAbi": "12.0.0.0",
-                "sourceUrl": "https://github.com/jnracreates/subtitle-extract-plus/releases/download/v4.0.0.0/subtitle-extract-plus_4.0.0.0.zip",
-                "checksum": "REPLACE_WITH_4.0.0.0_CHECKSUM",
-                "timestamp": "2026-09-20T00:00:00Z"
             }
         ],
         "imageUrl": "https://raw.githubusercontent.com/jnracreates/subtitle-extract-plus/master/icon.png"

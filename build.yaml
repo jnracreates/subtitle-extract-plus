@@ -1,7 +1,7 @@
 name: "Subtitle Extract Plus"
 guid: "528acb30-72a8-4c27-b699-a27a80a3855c"
 imageUrl: "https://raw.githubusercontent.com/jnracreates/subtitle-extract-plus/master/icon.png"
-version: "5.0.0.0"
+version: "5.0.1.0"
 targetAbi: "12.0.0.0"
 framework: "net10.0"
 owner: "jnracreates"
@@ -16,6 +16,7 @@ category: "Subtitles"
 artifacts:
   - "SubtitleExtractPlus.dll"
 changelog: |-
+  - Fixed: stale sidecars are now deleted and re-extracted when the media file changes
   - Configurable default-language preference with fallback chain
   - Extraction cache skips unchanged files
   - On-add extraction for newly added items
